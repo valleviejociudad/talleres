@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Detalle del Taller - Valle Viejo</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+
+<!-- Firebase SDKs -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCxBeZMj2YQc9GL2BAC6-kqhJi6KeLCbng",
+    authDomain: "talleres-muni.firebaseapp.com",
+    projectId: "talleres-muni",
+    storageBucket: "talleres-muni.firebasestorage.app",
+    messagingSenderId: "354217649134",
+    appId: "1:354217649134:web:cb1f1084dc107b1dd224ff"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  window.db = getFirestore(app);
+  window.doc = doc;
+  window.getDoc = getDoc;
+</script>
+
+<script>
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          primary: "#00a8e8",
+          secondary: "#ffd100",
+          "background-light": "#f4f7fb",
+          "background-dark": "#1a202c",
+          "card-light": "#ffffff",
+          "card-dark": "#2d3748",
+          "text-main-light": "#2d3748",
+          "text-main-dark": "#e2e8f0",
+          "text-muted-light": "#718096",
+          "text-muted-dark": "#a0aec0",
+        },
+        fontFamily: {
+          display: ["Montserrat", "sans-serif"],
+        },
+        borderRadius: {
+          DEFAULT: "1rem",
+        },
+      },
+    },
+  };
+</script>
+<style>
+  body {
+    min-height: max(884px, 100dvh);
+  }
+
+  /* ===== ANIMATIONS ===== */
+
+  /* Header slide down */
+  @keyframes headerSlideDown {
+    from { transform: translateY(-100%); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+  }
+  header { animation: headerSlideDown 0.5s cubic-bezier(0.22,1,0.36,1) both; }
+
+  /* Back button hover spin */
+  header a { transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), background 0.2s; }
+  header a:hover { transform: rotate(-20deg) scale(1.15); }
+
+  /* Hero zoom in */
+  @keyframes heroZoom {
+    from { transform: scale(1.08); opacity: 0; }
+    to   { transform: scale(1);    opacity: 1; }
+  }
+  main > div:first-child { overflow: hidden; }
+  main > div:first-child > div:first-child {
+    animation: heroZoom 0.8s cubic-bezier(0.22,1,0.36,1) both;
+  }
+
+  /* Badge shimmer */
+  @keyframes shimmer {
+    0%   { background-position: -200% center; }
+    100% { background-position: 200% center; }
+  }
+  .bg-secondary {
+    background: linear-gradient(90deg, #ffd100 25%, #ffe566 50%, #ffd100 75%) !important;
+    background-size: 200% auto !important;
+    animation: shimmer 2.5s linear infinite;
+  }
+
+  /* Generic fade-up */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Title block */
+  .anim-title { animation: fadeUp 0.6s 0.2s cubic-bezier(0.22,1,0.36,1) both; }
+
+  /* Divider */
+  hr { animation: fadeUp 0.4s 0.35s ease both; }
+
+  /* Info section title */
+  .anim-section { animation: fadeUp 0.5s 0.4s cubic-bezier(0.22,1,0.36,1) both; }
+
+  /* Scroll reveal for cards */
+  .card-reveal {
+    opacity: 0;
+    transform: translateY(32px) scale(0.97);
+    transition: opacity 0.5s cubic-bezier(0.22,1,0.36,1),
+                transform 0.5s cubic-bezier(0.22,1,0.36,1);
+  }
+  .card-reveal.visible { opacity: 1; transform: translateY(0) scale(1); }
+
+  /* Info card hover lift */
+  .info-card {
+    transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.25s ease;
+  }
+  .info-card:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 12px 32px rgba(0,168,232,0.15);
+  }
+
+  /* CTA pulse glow */
+  @keyframes ctaPulse {
+    0%, 100% { box-shadow: 0 4px 20px rgba(0,168,232,0.35), 0 0 0 0 rgba(0,168,232,0.3); }
+    50%       { box-shadow: 0 4px 20px rgba(0,168,232,0.35), 0 0 0 10px rgba(0,168,232,0); }
+  }
+  .cta-btn {
+    animation: ctaPulse 2.2s ease-in-out infinite;
+    transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), filter 0.2s;
+  }
+  .cta-btn:hover {
+    transform: translateY(-3px) scale(1.02);
+    filter: brightness(1.08);
+  }
+  .cta-btn:active { transform: scale(0.97); }
+
+  /* Icon bounce in CTA */
+  .cta-btn .material-icons {
+    transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .cta-btn:hover .material-icons { transform: translateX(5px); }
+
+  /* Tag chips pop-in */
+  @keyframes chipPop {
+    from { opacity: 0; transform: scale(0.7); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+  .tag-chip:nth-child(1) { animation: chipPop 0.4s 0.3s cubic-bezier(0.34,1.56,0.64,1) both; }
+  .tag-chip:nth-child(2) { animation: chipPop 0.4s 0.42s cubic-bezier(0.34,1.56,0.64,1) both; }
+  .tag-chip:nth-child(3) { animation: chipPop 0.4s 0.54s cubic-bezier(0.34,1.56,0.64,1) both; }
+</style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-text-main-light dark:text-text-main-dark font-display antialiased">
+
+<!-- Header -->
+<header class="sticky top-0 z-50 bg-white dark:bg-card-dark shadow-sm px-4 py-3 flex items-center gap-3 transition-colors duration-200">
+  <a href="index.html" class="w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+    <span class="material-icons text-xl">arrow_back</span>
+  </a>
+  <h2 class="text-base font-bold text-gray-800 dark:text-white">Detalle del Taller</h2>
+</header>
+
+<main class="pb-8" id="workshopDetail">
+  <!-- Loading State -->
+  <div class="animate-pulse p-4 space-y-4">
+    <div class="h-56 bg-gray-200 dark:bg-gray-700 rounded-2xl w-full"></div>
+    <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+    <div class="flex gap-2">
+      <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded-full w-20"></div>
+      <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded-full w-24"></div>
+    </div>
+    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-5/6"></div>
+  </div>
+</main>
+
+<script>
+  async function loadWorkshopDetail() {
+    if (!window.db) {
+      setTimeout(loadWorkshopDetail, 100);
+      return;
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const workshopId = urlParams.get('id');
+    const container = document.getElementById('workshopDetail');
+
+    if (!workshopId) {
+      container.innerHTML = '<div class="p-8 text-center text-gray-500">Taller no encontrado. <a href="index.html" class="text-primary hover:underline">Volver</a></div>';
+      return;
+    }
+
+    try {
+      const docRef = window.doc(window.db, "workshops", workshopId);
+      const docSnap = await window.getDoc(docRef);
+
+      if (!docSnap.exists()) {
+        container.innerHTML = '<div class="p-8 text-center text-gray-500">El taller no existe o fue eliminado. <a href="index.html" class="text-primary hover:underline">Volver</a></div>';
+        return;
+      }
+
+      const data = docSnap.data();
+      
+      const bannerStyle = data.imageUrl 
+        ? `background-image: url('${data.imageUrl}'); background-size: cover; background-position: center;`
+        : `background-color: ${data.bannerColor || '#3b82f6'};`;
+        
+      const overlayHTML = data.imageUrl 
+        ? `<div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>` 
+        : '';
+
+      let statusColor = 'text-yellow-600 dark:text-yellow-400';
+      let statusBg = 'bg-secondary/20';
+      let statusBorder = 'border-secondary/30';
+      let statusContainerBg = 'bg-secondary/10';
+      
+      if (data.status === 'Lleno') {
+        statusColor = 'text-red-600 dark:text-red-400';
+        statusBg = 'bg-red-500/20';
+        statusBorder = 'border-red-500/30';
+        statusContainerBg = 'bg-red-500/10';
+      } else if (data.status === 'Lista de Espera') {
+        statusColor = 'text-orange-600 dark:text-orange-400';
+        statusBg = 'bg-orange-500/20';
+        statusBorder = 'border-orange-500/30';
+        statusContainerBg = 'bg-orange-500/10';
+      }
+
+      container.innerHTML = `
+        <!-- Hero image -->
+        <div class="w-full h-56 relative flex items-center justify-center overflow-hidden" style="${bannerStyle}">
+          ${overlayHTML}
+          <span class="material-icons text-white/${data.imageUrl?'80':'30'} text-8xl relative z-10 ${data.imageUrl?'drop-shadow-lg':''}">${data.icon || 'music_note'}</span>
+          <span class="absolute bottom-4 right-4 bg-white dark:bg-card-dark text-primary font-bold text-xs px-3 py-1 rounded-full shadow-md border border-gray-100 dark:border-gray-700 uppercase tracking-wider z-10">${data.category}</span>
+        </div>
+
+        <!-- Title & tags -->
+        <div class="px-5 pt-5 pb-4 anim-title">
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-white leading-tight mb-3">${data.title}</h1>
+          <div class="flex flex-wrap gap-2 mb-4">
+            <span class="tag-chip inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-semibold">
+              <span class="material-icons text-[16px]">${data.icon || 'music_note'}</span> ${data.category}
+            </span>
+            <span class="tag-chip inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-sm font-medium">
+              <span class="material-icons text-[16px]">location_on</span> ${data.barrio}
+            </span>
+            <span class="tag-chip inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-sm font-medium">
+              <span class="material-icons text-[16px]">people</span> ${data.ageText}
+            </span>
+          </div>
+          <p class="text-sm text-text-muted-light dark:text-text-muted-dark leading-relaxed">
+            ${data.description}
+          </p>
+        </div>
+
+        <div class="border-t border-gray-100 dark:border-gray-700 mx-5"></div>
+
+        <!-- Información clave -->
+        <div class="px-5 py-5 anim-section">
+          <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-3">Información Clave</h3>
+          <div class="grid grid-cols-1 gap-3">
+
+            <!-- Días -->
+            ${(Array.isArray(data.dias) && data.dias.length) ? `
+            <div class="info-card card-reveal flex items-center gap-4 p-4 rounded-2xl bg-white dark:bg-card-dark shadow-sm border border-gray-100 dark:border-gray-700">
+              <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                <span class="material-icons">calendar_today</span>
+              </div>
+              <div>
+                <p class="text-[10px] font-semibold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-0.5">Días</p>
+                <p class="text-sm font-semibold text-gray-900 dark:text-white">${data.dias.join(' · ')}</p>
+              </div>
+            </div>` : ''}
+
+            <!-- Horario -->
+            <div class="info-card card-reveal flex items-center gap-4 p-4 rounded-2xl bg-white dark:bg-card-dark shadow-sm border border-gray-100 dark:border-gray-700">
+              <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                <span class="material-icons">schedule</span>
+              </div>
+              <div>
+                <p class="text-[10px] font-semibold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-0.5">Horario</p>
+                <p class="text-sm font-semibold text-gray-900 dark:text-white">
+                  ${data.horaInicio ? (data.horaFin ? data.horaInicio + ' – ' + data.horaFin + ' hs' : data.horaInicio + ' hs') : data.schedule}
+                </p>
+              </div>
+            </div>
+
+            <!-- Costo -->
+            <div class="info-card card-reveal flex items-center gap-4 p-4 rounded-2xl ${data.costo === 'arancelado' ? 'bg-orange-50 dark:bg-orange-900/10 border border-orange-200 dark:border-orange-800' : 'bg-green-50 dark:bg-green-900/10 border border-green-200 dark:border-green-800'} shadow-sm">
+              <div class="w-10 h-10 rounded-full ${data.costo === 'arancelado' ? 'bg-orange-100 text-orange-600' : 'bg-green-100 text-green-600'} flex items-center justify-center shrink-0">
+                <span class="material-icons">sell</span>
+              </div>
+              <div>
+                <p class="text-[10px] font-semibold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-0.5">Costo</p>
+                <p class="text-sm font-bold ${data.costo === 'arancelado' ? 'text-orange-600' : 'text-green-600'}">${data.costo === 'arancelado' ? '💳 Arancelado' : '✅ Gratuito'}</p>
+              </div>
+            </div>
+
+            <!-- Lugar -->
+            <div class="info-card card-reveal flex items-center gap-4 p-4 rounded-2xl bg-white dark:bg-card-dark shadow-sm border border-gray-100 dark:border-gray-700">
+              <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                <span class="material-icons">map</span>
+              </div>
+              <div>
+                <p class="text-[10px] font-semibold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-0.5">Lugar</p>
+                <p class="text-sm font-semibold text-gray-900 dark:text-white">${data.location}</p>
+              </div>
+            </div>
+
+            <!-- Profesor -->
+            ${data.profesor ? `
+            <div class="info-card card-reveal flex items-center gap-4 p-4 rounded-2xl bg-white dark:bg-card-dark shadow-sm border border-gray-100 dark:border-gray-700">
+              <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                <span class="material-icons">person</span>
+              </div>
+              <div>
+                <p class="text-[10px] font-semibold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-0.5">Profesor / Docente</p>
+                <p class="text-sm font-semibold text-gray-900 dark:text-white">${data.profesor}</p>
+              </div>
+            </div>` : ''}
+
+            <!-- Contacto -->
+            ${data.contacto ? `
+            <div class="info-card card-reveal flex items-center gap-4 p-4 rounded-2xl bg-white dark:bg-card-dark shadow-sm border border-gray-100 dark:border-gray-700">
+              <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                <span class="material-icons">phone</span>
+              </div>
+              <div>
+                <p class="text-[10px] font-semibold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-0.5">Contacto</p>
+                <p class="text-sm font-semibold text-gray-900 dark:text-white">${data.contacto}</p>
+              </div>
+            </div>` : ''}
+
+            <!-- Estado -->
+            <div class="info-card card-reveal flex items-center gap-4 p-4 rounded-2xl ${statusContainerBg} border ${statusBorder} shadow-sm">
+              <div class="w-10 h-10 rounded-full ${statusBg} flex items-center justify-center ${statusColor} shrink-0">
+                <span class="material-icons">info</span>
+              </div>
+              <div>
+                <p class="text-[10px] font-semibold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-0.5">Estado</p>
+                <p class="text-sm font-bold ${statusColor}">${data.status}</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- CTA -->
+        <div class="px-5 pt-2 pb-6">
+          <button class="cta-btn w-full flex items-center justify-center gap-2 bg-primary text-white py-3.5 px-6 rounded-2xl font-bold text-base">
+            <span>Inscribirme Ahora</span>
+            <span class="material-icons">arrow_forward</span>
+          </button>
+        </div>
+      `;
+      
+      // Re-trigger animations
+      setTimeout(() => {
+        const infoCards = document.querySelectorAll('.card-reveal');
+        infoCards.forEach((card, i) => card.style.transitionDelay = (i * 0.1) + 's');
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+              observer.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.12 });
+        infoCards.forEach(card => observer.observe(card));
+        
+        // Re-trigger hero animation manually if it was missed
+        const hero = document.querySelector('main > div:first-child');
+        if(hero) {
+            hero.style.animation = 'none';
+            hero.offsetHeight;
+            hero.style.animation = null;
+        }
+      }, 50);
+
+    } catch (e) {
+      console.error(e);
+      container.innerHTML = '<div class="p-8 text-center text-red-500">Error al cargar los datos.</div>';
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', loadWorkshopDetail);
+</script>
+
+</body>
+</html>

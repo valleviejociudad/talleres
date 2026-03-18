@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Talleres Municipales - Valle Viejo</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+
+<!-- Firebase SDKs -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCxBeZMj2YQc9GL2BAC6-kqhJi6KeLCbng",
+    authDomain: "talleres-muni.firebaseapp.com",
+    projectId: "talleres-muni",
+    storageBucket: "talleres-muni.firebasestorage.app",
+    messagingSenderId: "354217649134",
+    appId: "1:354217649134:web:cb1f1084dc107b1dd224ff"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  window.db = getFirestore(app);
+  window.collection = collection;
+  window.getDocs = getDocs;
+</script>
+
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#00a8e8", // Cyan blue from the logo/buttons
+                        secondary: "#ffd100", // Yellow accent
+                        "background-light": "#f4f7fb",
+                        "background-dark": "#1a202c",
+                        "card-light": "#ffffff",
+                        "card-dark": "#2d3748",
+                        "text-main-light": "#2d3748",
+                        "text-main-dark": "#e2e8f0",
+                        "text-muted-light": "#718096",
+                        "text-muted-dark": "#a0aec0",
+                    },
+                    fontFamily: {
+                        display: ["Montserrat", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "1rem",
+                    },
+                },
+            },
+        };
+    </script>
+<style>.no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;scrollbar-width: none;}
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+    /* Dropdown popover */
+    .filter-dropdown {
+      position: relative;
+    }
+    .filter-popover {
+      display: none;
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      z-index: 200;
+      background: white;
+      border-radius: 1rem;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+      padding: 12px;
+      min-width: 220px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .dark .filter-popover {
+      background: #2d3748;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    }
+    .filter-popover.open {
+      display: flex;
+    }
+    .filter-chip {
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border: 1.5px solid #e2e8f0;
+      background: #f4f7fb;
+      color: #4a5568;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+    .dark .filter-chip {
+      background: #1a202c;
+      border-color: #4a5568;
+      color: #a0aec0;
+    }
+    .filter-chip:hover, .filter-chip.active {
+      background: #00a8e8;
+      border-color: #00a8e8;
+      color: white;
+    }
+    .filter-btn-active {
+      border-color: #00a8e8 !important;
+      color: #00a8e8 !important;
+    }
+
+    /* ===== ANIMATIONS ===== */
+
+    /* Header slide down */
+    @keyframes headerSlideDown {
+      from { transform: translateY(-100%); opacity: 0; }
+      to   { transform: translateY(0);    opacity: 1; }
+    }
+    header { animation: headerSlideDown 0.5s cubic-bezier(0.22,1,0.36,1) both; }
+
+    /* Hero section fade+rise */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    main > .space-y-4 { animation: fadeUp 0.6s 0.15s cubic-bezier(0.22,1,0.36,1) both; }
+
+    /* Filter row */
+    main > .flex { animation: fadeUp 0.6s 0.3s cubic-bezier(0.22,1,0.36,1) both; }
+
+    /* Cards scroll reveal */
+    .card-reveal {
+      opacity: 0;
+      transform: translateY(40px) scale(0.97);
+      transition: opacity 0.55s cubic-bezier(0.22,1,0.36,1),
+                  transform 0.55s cubic-bezier(0.22,1,0.36,1);
+    }
+    .card-reveal.visible {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    /* Card hover lift + glow */
+    article {
+      transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1),
+                  box-shadow 0.25s ease;
+    }
+    article:hover {
+      transform: translateY(-5px) scale(1.012);
+      box-shadow: 0 16px 40px rgba(0,168,232,0.18);
+    }
+
+    /* Search bar animated glow ring */
+    input[type="text"] {
+      transition: box-shadow 0.3s ease, transform 0.2s ease;
+    }
+    input[type="text"]:focus {
+      box-shadow: 0 0 0 3px rgba(0,168,232,0.25), 0 4px 12px rgba(0,168,232,0.1);
+      transform: scale(1.01);
+    }
+
+    /* Filter button hover */
+    .filter-dropdown button:first-child {
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+    }
+    .filter-dropdown button:first-child:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0,168,232,0.15);
+    }
+    .filter-dropdown button:first-child:active {
+      transform: scale(0.95);
+    }
+
+    /* Popover slide-in */
+    @keyframes popoverIn {
+      from { opacity: 0; transform: translateY(-8px) scale(0.95); }
+      to   { opacity: 1; transform: translateY(0)  scale(1); }
+    }
+    .filter-popover.open {
+      animation: popoverIn 0.22s cubic-bezier(0.22,1,0.36,1) both;
+    }
+
+    /* Chip selection pop */
+    .filter-chip {
+      transition: background 0.15s, border-color 0.15s, color 0.15s,
+                  transform 0.15s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .filter-chip:active { transform: scale(0.9); }
+    .filter-chip.active { transform: scale(1.05); }
+
+    /* Inscribirse button pulse */
+    @keyframes pulseCTA {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(0,168,232,0.4); }
+      50%       { box-shadow: 0 0 0 8px rgba(0,168,232,0); }
+    }
+    button.text-primary { transition: color 0.2s, transform 0.15s; }
+    button.text-primary:hover { transform: translateX(3px); }
+
+    /* Shimmer on featured card badge */
+    @keyframes shimmer {
+      0%   { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
+    article:first-child .bg-secondary {
+      background: linear-gradient(90deg, #ffd100 25%, #ffe566 50%, #ffd100 75%);
+      background-size: 200% auto;
+      animation: shimmer 2.5s linear infinite;
+    }
+
+    /* Category pill hover */
+    span.absolute.-top-4 {
+      transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s;
+    }
+    article:hover span.absolute.-top-4 {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 18px rgba(0,168,232,0.25);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-text-main-light dark:text-text-main-dark font-display antialiased">
+<header class="sticky top-0 z-50 bg-white dark:bg-card-dark shadow-sm px-4 py-3 flex justify-center items-center transition-colors duration-200">
+<img src="valleviejo.svg" alt="Valle Viejo" class="h-10"/>
+</header>
+<main class="px-4 py-6 space-y-6">
+<div class="space-y-4">
+<h1 class="text-2xl font-bold text-gray-900 dark:text-white">Talleres Municipales</h1>
+<p class="text-sm text-text-muted-light dark:text-text-muted-dark">Encontrá el taller ideal para vos cerca de tu barrio.</p>
+<div class="relative">
+<span class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">search</span>
+<input id="search-input" class="w-full pl-10 pr-4 py-3 rounded-full border-none bg-white dark:bg-card-dark shadow-sm text-sm text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-primary focus:outline-none transition-shadow" placeholder="Buscar talleres..." type="text" oninput="applyFilters()"/>
+</div>
+</div>
+
+<!-- Filtros con dropdowns -->
+<div style="position:relative; z-index:50;">
+<div class="flex flex-wrap gap-2">
+
+  <!-- Dropdown: Barrios -->
+  <div class="filter-dropdown">
+    <button id="btn-barrios" onclick="toggleDropdown('pop-barrios','btn-barrios')" class="flex items-center gap-1 px-4 py-2 rounded-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 text-sm font-medium whitespace-nowrap shadow-sm hover:border-primary transition-colors">
+      <span class="material-icons text-[16px] text-primary">location_on</span>
+      Todos los Barrios
+      <span class="material-icons text-[18px] text-gray-400" id="icon-barrios">arrow_drop_down</span>
+    </button>
+    <div class="filter-popover" id="pop-barrios">
+      <button class="filter-chip active" data-filter="barrio" data-value="">Todos los Barrios</button>
+      <button class="filter-chip" data-filter="barrio" data-value="Centro">Centro</button>
+      <button class="filter-chip" data-filter="barrio" data-value="La Antena">La Antena</button>
+      <button class="filter-chip" data-filter="barrio" data-value="Santa Cruz">Santa Cruz</button>
+    </div>
+  </div>
+
+  <!-- Dropdown: Talleres -->
+  <div class="filter-dropdown">
+    <button id="btn-talleres" onclick="toggleDropdown('pop-talleres','btn-talleres')" class="flex items-center gap-1 px-4 py-2 rounded-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 text-sm font-medium whitespace-nowrap shadow-sm hover:border-primary transition-colors">
+      <span class="material-icons text-[16px] text-primary">school</span>
+      Todos los Talleres
+      <span class="material-icons text-[18px] text-gray-400" id="icon-talleres">arrow_drop_down</span>
+    </button>
+    <div class="filter-popover" id="pop-talleres">
+      <button class="filter-chip active" data-filter="category" data-value="">Todos</button>
+      <button class="filter-chip" data-filter="category" data-value="Música">Música</button>
+      <button class="filter-chip" data-filter="category" data-value="Deportes">Deportes</button>
+      <button class="filter-chip" data-filter="category" data-value="Arte">Arte</button>
+      <button class="filter-chip" data-filter="category" data-value="Oficios">Oficios</button>
+    </div>
+  </div>
+
+  <!-- Dropdown: Edades -->
+  <div class="filter-dropdown">
+    <button id="btn-edades" onclick="toggleDropdown('pop-edades','btn-edades')" class="flex items-center gap-1 px-4 py-2 rounded-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 text-sm font-medium whitespace-nowrap shadow-sm hover:border-primary transition-colors">
+      <span class="material-icons text-[16px] text-primary">people</span>
+      Todas las Edades
+      <span class="material-icons text-[18px] text-gray-400" id="icon-edades">arrow_drop_down</span>
+    </button>
+    <div class="filter-popover" id="pop-edades">
+      <button class="filter-chip active" data-filter="edad" data-value="">Todas las Edades</button>
+      <button class="filter-chip" data-filter="edad" data-value="Niños">Niños</button>
+      <button class="filter-chip" data-filter="edad" data-value="Adolescentes">Adolescentes</button>
+      <button class="filter-chip" data-filter="edad" data-value="Adultos">Adultos</button>
+      <button class="filter-chip" data-filter="edad" data-value="Mayores">Mayores</button>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script>
+  const allPopoverIds = ['pop-barrios', 'pop-talleres', 'pop-edades'];
+  const allBtnIds    = ['btn-barrios', 'btn-talleres', 'btn-edades'];
+  const allIconIds   = ['icon-barrios','icon-talleres','icon-edades'];
+
+  function toggleDropdown(popId, btnId) {
+    const isOpen = document.getElementById(popId).classList.contains('open');
+    allPopoverIds.forEach(id => document.getElementById(id).classList.remove('open'));
+    allBtnIds.forEach(id => document.getElementById(id).classList.remove('filter-btn-active'));
+    allIconIds.forEach(id => document.getElementById(id).textContent = 'arrow_drop_down');
+    if (!isOpen) {
+      document.getElementById(popId).classList.add('open');
+      document.getElementById(btnId).classList.add('filter-btn-active');
+      document.getElementById(btnId.replace('btn-','icon-')).textContent = 'arrow_drop_up';
+    }
+  }
+
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.filter-dropdown')) {
+      allPopoverIds.forEach(id => document.getElementById(id).classList.remove('open'));
+      allBtnIds.forEach(id => document.getElementById(id).classList.remove('filter-btn-active'));
+      allIconIds.forEach(id => document.getElementById(id).textContent = 'arrow_drop_down');
+    }
+  });
+
+  document.querySelectorAll('.filter-popover').forEach(popover => {
+    popover.querySelectorAll('.filter-chip').forEach(chip => {
+      chip.addEventListener('click', function(e) {
+        e.stopPropagation();
+        popover.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+        this.classList.add('active');
+        applyFilters();
+      });
+    });
+  });
+</script>
+
+<div class="space-y-5" id="workshopsContainer">
+  <!-- Loading skeleton initially -->
+  <div class="animate-pulse flex flex-col gap-4 p-4 border border-gray-100 dark:border-gray-800 rounded-2xl bg-white dark:bg-card-dark">
+    <div class="h-32 bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
+    <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+  </div>
+</div>
+</main>
+
+<script>
+  // ── Workshop data store ───────────────────────────────────────
+  window.allWorkshops = []; // [{id, data}]
+
+  // ── Build card HTML ───────────────────────────────────────────
+  function buildCardHTML(doc, isFirst) {
+    const data = doc.data;
+    const bannerStyle = data.imageUrl
+      ? `background-image: url('${data.imageUrl}'); background-size: cover; background-position: center;`
+      : `background-color: ${data.bannerColor || '#3b82f6'};`;
+    const bannerClass = isFirst ? 'h-32' : 'h-24';
+    const badgeHTML = isFirst
+      ? `<span class="absolute top-3 left-3 bg-secondary text-gray-900 text-xs font-bold px-3 py-1 rounded-full shadow-sm z-10 uppercase tracking-wider">Último Lanzamiento</span>`
+      : '';
+    const descHTML = isFirst && data.description
+      ? `<p class="text-sm text-text-muted-light dark:text-text-muted-dark line-clamp-2">${data.description}</p>`
+      : '';
+    const overlayHTML = data.imageUrl
+      ? `<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>`
+      : '';
+    return `
+      <a href="descripcion.html?id=${doc.id}" class="block no-underline">
+      <article class="bg-white dark:bg-card-dark rounded-2xl shadow-${isFirst ? 'md' : 'sm border border-gray-100 dark:border-gray-800'} overflow-hidden flex flex-col transition-transform active:scale-[0.98] cursor-pointer">
+        <div class="${bannerClass} relative flex items-center justify-center overflow-hidden" style="${bannerStyle}">
+          ${badgeHTML}
+          <span class="material-icons text-white/${data.imageUrl?'90':'50'} text-5xl z-10 ${data.imageUrl?'drop-shadow-lg':''}">${data.icon || 'music_note'}</span>
+          ${overlayHTML}
+        </div>
+        <div class="p-4 flex flex-col gap-3 relative">
+          <span class="absolute -top-4 right-4 bg-white dark:bg-card-dark text-primary font-bold text-xs px-3 py-1 rounded-full shadow-md border border-gray-100 dark:border-gray-700 uppercase tracking-wider">${data.category}</span>
+          <div>
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white leading-tight mb-1">${data.title}</h3>
+            ${descHTML}
+          </div>
+          <div class="space-y-1.5 ${isFirst?'mt-1':'}'}">
+            <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+              <span class="material-icons text-[16px] text-gray-400">location_on</span>
+              <span>${data.location}</span>
+            </div>
+            <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+              <span class="material-icons text-[16px] text-gray-400">calendar_today</span>
+              <span>${Array.isArray(data.dias) && data.dias.length ? data.dias.join(', ') : (data.schedule || "—")}</span>
+            </div>
+            <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+              <span class="material-icons text-[16px] text-gray-400">schedule</span>
+              <span>${data.horaInicio ? (data.horaFin ? data.horaInicio + " – " + data.horaFin + " hs" : data.horaInicio + " hs") : (data.schedule || "—")}</span>
+            </div>
+          </div>
+          <div class="mt-2 flex justify-between items-center border-t border-gray-100 dark:border-gray-700 pt-3">
+            <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">${data.ageText}</span>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold px-2 py-1 rounded-full ${data.costo === 'arancelado' ? 'bg-orange-100 text-orange-600' : 'bg-green-100 text-green-700'}">${data.costo === 'arancelado' ? 'Arancelado' : 'Gratuito'}</span>
+              <span class="text-primary font-bold text-sm flex items-center gap-1 uppercase tracking-wide">
+                ${isFirst ? 'Inscribirse' : 'Ver más'} <span class="material-icons text-[18px]">${isFirst ? 'arrow_forward' : 'chevron_right'}</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </article>
+      </a>
+    `;
+  }
+
+  // ── Render a list of workshops ────────────────────────────────
+  function renderWorkshops(list) {
+    const container = document.getElementById('workshopsContainer');
+    if (list.length === 0) {
+      container.innerHTML = '<p class="text-center text-gray-400 py-10">No se encontraron talleres para tu búsqueda.</p>';
+      return;
+    }
+    container.innerHTML = list.map((doc, i) => buildCardHTML(doc, i === 0)).join('');
+    initScrollReveal();
+  }
+
+  // ── Apply search + filters ────────────────────────────────────
+  function applyFilters() {
+    const query = (document.getElementById('search-input').value || '').toLowerCase().trim();
+
+    // Active chip values
+    const activeBarrio   = (document.querySelector('#pop-barrios .filter-chip.active')?.dataset.value   || '').toLowerCase();
+    const activeCategory = (document.querySelector('#pop-talleres .filter-chip.active')?.dataset.value  || '').toLowerCase();
+    const activeEdad     = (document.querySelector('#pop-edades .filter-chip.active')?.dataset.value    || '').toLowerCase();
+
+    const filtered = window.allWorkshops.filter(({data}) => {
+      // Search: match title, description, location, schedule
+      if (query) {
+        const haystack = [
+          data.title, data.description, data.location, data.schedule, data.category, data.ageText
+        ].join(' ').toLowerCase();
+        if (!haystack.includes(query)) return false;
+      }
+      // Barrio filter (matches location field)
+      if (activeBarrio && !( data.location || '').toLowerCase().includes(activeBarrio)) return false;
+      // Category filter
+      if (activeCategory && (data.category || '').toLowerCase() !== activeCategory) return false;
+      // Age filter (matches ageText field)
+      if (activeEdad && !(data.ageText || '').toLowerCase().includes(activeEdad)) return false;
+
+      return true;
+    });
+
+    renderWorkshops(filtered);
+  }
+
+  // ── Fetch workshops from Firebase ────────────────────────────
+  async function loadWorkshops() {
+    if (!window.db) { setTimeout(loadWorkshops, 100); return; }
+    try {
+      const container = document.getElementById('workshopsContainer');
+      const querySnapshot = await window.getDocs(window.collection(window.db, "workshops"));
+      if (querySnapshot.empty) {
+        container.innerHTML = '<p class="text-center text-gray-500 py-8">No hay talleres disponibles por el momento.</p>';
+        return;
+      }
+      // Store all data in memory
+      window.allWorkshops = [];
+      querySnapshot.forEach((doc) => {
+        window.allWorkshops.push({ id: doc.id, data: doc.data() });
+      });
+      // Initial render (no filters)
+      renderWorkshops(window.allWorkshops);
+    } catch (e) {
+      console.error('Error loading workshops:', e);
+      document.getElementById('workshopsContainer').innerHTML =
+        '<p class="text-center text-red-500 py-8">Error al cargar talleres. Intente nuevamente.</p>';
+    }
+  }
+
+  // ── Scroll-reveal for dynamic cards ──────────────────────────
+  function initScrollReveal() {
+    const cards = document.querySelectorAll('article');
+    cards.forEach((card, i) => {
+      card.classList.add('card-reveal');
+      card.style.transitionDelay = (i * 0.12) + 's';
+    });
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+    cards.forEach(card => observer.observe(card));
+  }
+
+  // Start loading
+  document.addEventListener('DOMContentLoaded', loadWorkshops);
+
+  // ── Ripple effect on filter buttons ─────────────────────────
+  document.querySelectorAll('.filter-dropdown > button').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      const ripple = document.createElement('span');
+      ripple.style.cssText = `
+        position:absolute; border-radius:50%; background:rgba(0,168,232,0.25);
+        width:60px; height:60px; transform:scale(0); animation:rippleAnim 0.5s linear;
+        left:${e.offsetX - 30}px; top:${e.offsetY - 30}px; pointer-events:none;
+      `;
+      this.style.position = 'relative';
+      this.style.overflow = 'hidden';
+      this.appendChild(ripple);
+      setTimeout(() => ripple.remove(), 500);
+    });
+  });
+</script>
+
+<style>
+  @keyframes rippleAnim {
+    to { transform: scale(3); opacity: 0; }
+  }
+</style>
+
+</body></html>

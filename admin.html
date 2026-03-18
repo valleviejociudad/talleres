@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Admin - Talleres Municipales</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+
+<!-- Firebase SDKs -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, getDocs, deleteDoc, updateDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCxBeZMj2YQc9GL2BAC6-kqhJi6KeLCbng",
+    authDomain: "talleres-muni.firebaseapp.com",
+    projectId: "talleres-muni",
+    storageBucket: "talleres-muni.firebasestorage.app",
+    messagingSenderId: "354217649134",
+    appId: "1:354217649134:web:cb1f1084dc107b1dd224ff"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  window.db = db;
+  window.collection = collection;
+  window.addDoc = addDoc;
+  window.getDocs = getDocs;
+  window.deleteDoc = deleteDoc;
+  window.updateDoc = updateDoc;
+  window.doc = doc;
+  window.onSnapshot = onSnapshot;
+</script>
+
+<script>
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          primary: "#00a8e8",
+          secondary: "#ffd100",
+          "background-light": "#f4f7fb",
+          "background-dark": "#1a202c",
+          "card-light": "#ffffff",
+          "card-dark": "#2d3748",
+          "text-main-light": "#2d3748",
+          "text-main-dark": "#e2e8f0",
+          "text-muted-light": "#718096",
+          "text-muted-dark": "#a0aec0",
+        },
+        fontFamily: { display: ["Montserrat", "sans-serif"] },
+        borderRadius: { DEFAULT: "1rem" },
+      },
+    },
+  };
+</script>
+
+<style>
+  body { min-height: max(884px, 100dvh); }
+
+  /* ===== ANIMATIONS ===== */
+  @keyframes headerSlideDown {
+    from { transform: translateY(-100%); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+  }
+  header { animation: headerSlideDown 0.5s cubic-bezier(0.22,1,0.36,1) both; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .anim-1 { animation: fadeUp 0.5s 0.1s cubic-bezier(0.22,1,0.36,1) both; }
+  .anim-2 { animation: fadeUp 0.5s 0.22s cubic-bezier(0.22,1,0.36,1) both; }
+  .anim-3 { animation: fadeUp 0.5s 0.34s cubic-bezier(0.22,1,0.36,1) both; }
+
+  /* Card reveal */
+  .card-reveal {
+    opacity: 0;
+    transform: translateY(32px) scale(0.97);
+    transition: opacity 0.5s cubic-bezier(0.22,1,0.36,1), transform 0.5s cubic-bezier(0.22,1,0.36,1);
+  }
+  .card-reveal.visible { opacity: 1; transform: translateY(0) scale(1); }
+
+  /* Section card hover */
+  .section-card {
+    transition: box-shadow 0.25s ease;
+  }
+  .section-card:hover {
+    box-shadow: 0 8px 32px rgba(0,168,232,0.08);
+  }
+
+  /* Spinner */
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner {
+    border: 3px solid rgba(0,168,232,0.2);
+    border-top-color: #00a8e8;
+    border-radius: 50%;
+    width: 20px; height: 20px;
+    animation: spin 0.8s linear infinite;
+    display: inline-block;
+  }
+
+  /* Loading overlay */
+  #loadingOverlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(244,247,251,0.85);
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+    display: flex; justify-content: center; align-items: center;
+    transition: opacity 0.3s; pointer-events: none; opacity: 0;
+  }
+  #loadingOverlay.active { opacity: 1; pointer-events: all; }
+  .dark #loadingOverlay { background: rgba(26,32,44,0.85); }
+
+  /* Toast notifications */
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+    z-index: 10000; min-width: 260px; max-width: 340px;
+    padding: 14px 20px; border-radius: 1rem;
+    display: flex; align-items: center; gap: 12px;
+    font-family: 'Montserrat', sans-serif; font-size: 0.875rem; font-weight: 600;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), opacity 0.4s ease;
+    opacity: 0;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+  .toast.success { background: #fff; color: #2d3748; border-left: 4px solid #00a8e8; }
+  .toast.error   { background: #fff; color: #2d3748; border-left: 4px solid #f56565; }
+
+  /* Table row hover */
+  .workshop-row { transition: background 0.15s; }
+  .workshop-row:hover { background: rgba(0,168,232,0.04); }
+
+  /* Form inputs focus */
+  .form-input:focus {
+    box-shadow: 0 0 0 3px rgba(0,168,232,0.2);
+    border-color: #00a8e8 !important;
+    outline: none;
+  }
+
+  /* Preview card mini animations */
+  @keyframes previewPop {
+    from { opacity: 0; transform: scale(0.95) translateY(8px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  #previewCard { animation: previewPop 0.35s cubic-bezier(0.34,1.56,0.64,1) both; }
+
+  /* Submit button pulse */
+  @keyframes ctaPulse {
+    0%, 100% { box-shadow: 0 4px 20px rgba(0,168,232,0.3), 0 0 0 0 rgba(0,168,232,0.2); }
+    50%       { box-shadow: 0 4px 20px rgba(0,168,232,0.3), 0 0 0 8px rgba(0,168,232,0); }
+  }
+  #submitBtn:not(:disabled) {
+    animation: ctaPulse 2.5s ease-in-out infinite;
+    transition: transform 0.18s cubic-bezier(0.34,1.56,0.64,1), filter 0.18s;
+  }
+  #submitBtn:not(:disabled):hover { transform: translateY(-2px); filter: brightness(1.07); }
+  #submitBtn:active { transform: scale(0.97) !important; }
+
+  /* Stats cards */
+  .stat-card {
+    transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.25s ease;
+  }
+  .stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0,168,232,0.15);
+  }
+
+  /* Tab animation */
+  .tab-btn { transition: color 0.2s, border-color 0.2s; }
+  .tab-btn.active { color: #00a8e8; border-bottom-color: #00a8e8; }
+
+  /* Delete button */
+  .btn-delete {
+    transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), background 0.18s;
+  }
+  .btn-delete:hover { transform: scale(1.1); }
+
+  /* Shimmer skeleton */
+  @keyframes shimmerSkel {
+    0%   { background-position: -400px 0; }
+    100% { background-position: 400px 0; }
+  }
+  .skeleton {
+    background: linear-gradient(90deg, #f0f4f8 25%, #e8edf2 50%, #f0f4f8 75%);
+    background-size: 800px 100%;
+    animation: shimmerSkel 1.4s infinite;
+    border-radius: 0.5rem;
+  }
+  .dark .skeleton {
+    background: linear-gradient(90deg, #2d3748 25%, #3a4a5c 50%, #2d3748 75%);
+    background-size: 800px 100%;
+  }
+</style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark text-text-main-light dark:text-text-main-dark font-display antialiased pb-12">
+
+<!-- Toast Container -->
+<div id="toast" class="toast success" role="alert">
+  <span id="toastIcon" class="material-icons text-primary">check_circle</span>
+  <span id="toastMsg">Mensaje</span>
+</div>
+
+<!-- Loading overlay -->
+<div id="loadingOverlay">
+  <div class="flex flex-col items-center gap-3">
+    <div class="w-12 h-12 border-4 border-primary border-t-transparent rounded-full" style="animation: spin 0.8s linear infinite;"></div>
+    <span class="text-sm font-semibold text-text-muted-light dark:text-text-muted-dark">Procesando...</span>
+  </div>
+</div>
+
+<!-- ══ HEADER ══════════════════════════════════════════════════════════════════ -->
+<header class="sticky top-0 z-50 bg-white dark:bg-card-dark shadow-sm px-4 py-3 flex justify-between items-center transition-colors duration-200">
+  <img src="valleviejo.svg" alt="Valle Viejo" class="h-8"/>
+  <a href="index.html" class="flex items-center gap-1 text-sm font-semibold text-primary hover:text-blue-600 transition-colors">
+    <span class="material-icons text-[18px]">visibility</span>
+    Ver Sitio
+  </a>
+</header>
+
+<main class="max-w-4xl mx-auto px-4 py-6 space-y-6">
+
+  <!-- ══ STATS ROW ══════════════════════════════════════════════════════════════ -->
+  <div class="grid grid-cols-3 gap-3 anim-1" id="statsRow">
+    <div class="stat-card bg-white dark:bg-card-dark rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-4 flex flex-col items-center gap-1">
+      <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-1">
+        <span class="material-icons">school</span>
+      </div>
+      <span class="text-2xl font-bold text-gray-900 dark:text-white" id="statTotal">—</span>
+      <span class="text-[0.65rem] font-semibold uppercase tracking-wider text-text-muted-light dark:text-text-muted-dark">Total</span>
+    </div>
+    <div class="stat-card bg-white dark:bg-card-dark rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-4 flex flex-col items-center gap-1">
+      <div class="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center text-green-600 mb-1">
+        <span class="material-icons">check_circle</span>
+      </div>
+      <span class="text-2xl font-bold text-gray-900 dark:text-white" id="statOpen">—</span>
+      <span class="text-[0.65rem] font-semibold uppercase tracking-wider text-text-muted-light dark:text-text-muted-dark">Disponibles</span>
+    </div>
+    <div class="stat-card bg-white dark:bg-card-dark rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-4 flex flex-col items-center gap-1">
+      <div class="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center text-red-500 mb-1">
+        <span class="material-icons">group_off</span>
+      </div>
+      <span class="text-2xl font-bold text-gray-900 dark:text-white" id="statFull">—</span>
+      <span class="text-[0.65rem] font-semibold uppercase tracking-wider text-text-muted-light dark:text-text-muted-dark">Llenos</span>
+    </div>
+  </div>
+
+  <!-- ══ FORM: NUEVO TALLER ═════════════════════════════════════════════════════ -->
+  <section class="section-card bg-white dark:bg-card-dark rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden anim-2">
+    <!-- Section header -->
+    <div class="flex items-center gap-3 p-5 border-b border-gray-100 dark:border-gray-800">
+      <div class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+        <span class="material-icons">add_circle</span>
+      </div>
+      <div>
+        <h2 class="text-base font-bold text-gray-900 dark:text-white">Nuevo Taller</h2>
+        <p class="text-[0.7rem] text-text-muted-light dark:text-text-muted-dark">Completá los campos para publicar un taller</p>
+      </div>
+    </div>
+
+    <!-- Form body -->
+    <form id="addWorkshopForm" class="p-5 space-y-5">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+        <!-- Título -->
+        <div class="col-span-1 md:col-span-2">
+          <label class="block text-[0.7rem] font-bold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-1.5">Título del Taller *</label>
+          <input type="text" id="w_title" required placeholder="Ej: Guitarra para Principiantes"
+            class="form-input w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-sm px-4 py-2.5 text-gray-800 dark:text-gray-100 transition-all"/>
+        </div>
+
+        <!-- Categoría -->
+        <div>
+          <label class="block text-[0.7rem] font-bold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-1.5">Categoría *</label>
+          <select id="w_category" required
+            class="form-input w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-sm px-4 py-2.5 text-gray-800 dark:text-gray-100 transition-all">
+            <option value="Música">🎵 Música</option>
+            <option value="Deportes">⚽ Deportes</option>
+            <option value="Arte">🎨 Arte</option>
+            <option value="Oficios">🔧 Oficios</option>
+            <option value="Danza">💃 Danza</option>
+            <option value="Teatro">🎭 Teatro</option>
+            <option value="Tecnología">💻 Tecnología</option>
+          </select>
+        </div>
+
+        <!-- Barrio -->
+        <div>
+          <label class="block text-[0.7rem] font-bold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-1.5">Barrio *</label>
+          <select id="w_barrio" required
+            class="form-input w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-sm px-4 py-2.5 text-gray-800 dark:text-gray-100 transition-all">
+            <option value="Centro">Centro</option>
+            <option value="La Antena">La Antena</option>
+            <option value="Santa Cruz">Santa Cruz</option>
+          </select>
+        </div>
+
+        <!-- Lugar específico -->
+        <div>
+          <label class="block text-[0.7rem] font-bold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-1.5">Lugar Específico *</label>
+          <input type="text" id="w_location" required placeholder="Ej: Polideportivo Municipal"
+            class="form-input w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-sm px-4 py-2.5 text-gray-800 dark:text-gray-100 transition-all"/>
+        </div>
+
+        <!-- Días -->
+        <div class="col-span-1 md:col-span-2">
+          <label class="block text-[0.7rem] font-bold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-2">Días *</label>
+          <div class="flex flex-wrap gap-2" id="dias-group">
+            <label class="flex items-center gap-1.5 cursor-pointer">
+              <input type="checkbox" value="Lunes" class="dia-check w-4 h-4 rounded accent-primary"> <span class="text-sm font-medium text-gray-700 dark:text-gray-200">Lun</span>
+            </label>
+            <label class="flex items-center gap-1.5 cursor-pointer">
+              <input type="checkbox" value="Martes" class="dia-check w-4 h-4 rounded accent-primary"> <span class="text-sm font-medium text-gray-700 dark:text-gray-200">Mar</span>
+            </label>
+            <label class="flex items-center gap-1.5 cursor-pointer">
+              <input type="checkbox" value="Miércoles" class="dia-check w-4 h-4 rounded accent-primary"> <span class="text-sm font-medium text-gray-700 dark:text-gray-200">Mié</span>
+            </label>
+            <label class="flex items-center gap-1.5 cursor-pointer">
+              <input type="checkbox" value="Jueves" class="dia-check w-4 h-4 rounded accent-primary"> <span class="text-sm font-medium text-gray-700 dark:text-gray-200">Jue</span>
+            </label>
+            <label class="flex items-center gap-1.5 cursor-pointer">
+              <input type="checkbox" value="Viernes" class="dia-check w-4 h-4 rounded accent-primary"> <span class="text-sm font-medium text-gray-700 dark:text-gray-200">Vie</span>
+            </label>
+            <label class="flex items-center gap-1.5 cursor-pointer">
+              <input type="checkbox" value="Sábado" class="dia-check w-4 h-4 rounded accent-primary"> <span class="text-sm font-medium text-gray-700 dark:text-gray-200">Sáb</span>
+            </label>
+            <label class="flex items-center gap-1.5 cursor-pointer">
+              <input type="checkbox" value="Domingo" class="dia-check w-4 h-4 rounded accent-primary"> <span class="text-sm font-medium text-gray-700 dark:text-gray-200">Dom</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Horario (Hora inicio / fin) -->
+        <div>
+          <label class="block text-[0.7rem] font-bold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-1.5">Hora de inicio *</label>
+          <input type="time" id="w_horaInicio" required
+            class="form-input w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-sm px-4 py-2.5 text-gray-800 dark:text-gray-100 transition-all"/>
+        </div>
+        <div>
+          <label class="block text-[0.7rem] font-bold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-1.5">Hora de fin *</label>
+          <input type="time" id="w_horaFin" required
+            class="form-input w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-sm px-4 py-2.5 text-gray-800 dark:text-gray-100 transition-all"/>
+        </div>
+
+        <!-- Grupo de edad -->
+        <div>
+          <label class="block text-[0.7rem] font-bold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-1.5">Grupo de Edad *</label>
+          <select id="w_age" required
+            class="form-input w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-sm px-4 py-2.5 text-gray-800 dark:text-gray-100 transition-all">
+            <option value="Niños">Niños</option>
+            <option value="Adolescentes">Adolescentes</option>
+            <option value="Adultos">Adultos</option>
+            <option value="Mayores">Mayores</option>
+            <option value="Todas las Edades">Todas las Edades</option>
+          </select>
+        </div>
+
+        <!-- Rango de edades texto -->
+        <div>
+          <label class="block text-[0.7rem] font-bold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-1.5">Texto Rango de Edad *</label>
+          <input type="text" id="w_ageText" required placeholder="Ej: 8 a 14 años"
+            class="form-input w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-sm px-4 py-2.5 text-gray-800 dark:text-gray-100 transition-all"/>
+        </div>
+
+        <!-- Estado -->
+        <div>
+          <label class="block text-[0.7rem] font-bold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-1.5">Estado</label>
+          <select id="w_status"
+            class="form-input w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-sm px-4 py-2.5 text-gray-800 dark:text-gray-100 transition-all">
+            <option value="Cupos Disponibles">✅ Cupos Disponibles</option>
+            <option value="Lista de Espera">⏳ Lista de Espera</option>
+            <option value="Lleno">🔴 Lleno</option>
+          </select>
+        </div>
+
+        <!-- Gratuito / Arancelado -->
+        <div class="col-span-1 md:col-span-2">
+          <label class="block text-[0.7rem] font-bold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-2">Costo</label>
+          <div class="flex items-center gap-3">
+            <span class="text-sm font-semibold text-gray-600 dark:text-gray-300">Arancelado</span>
+            <button type="button" id="w_costo_toggle" role="switch" aria-checked="true"
+              onclick="toggleCosto()"
+              class="relative inline-flex h-7 w-14 items-center rounded-full bg-green-500 transition-colors focus:outline-none">
+              <span id="w_costo_knob" class="inline-block h-5 w-5 translate-x-8 transform rounded-full bg-white shadow transition-transform"></span>
+            </button>
+            <span class="text-sm font-semibold text-green-600" id="w_costo_label">Gratuito</span>
+          </div>
+          <input type="hidden" id="w_costo" value="gratuito"/>
+        </div>
+
+        <!-- Profesor -->
+        <div>
+          <label class="block text-[0.7rem] font-bold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-1.5">Profesor / Docente</label>
+          <input type="text" id="w_profesor" placeholder="Ej: Lic. María González"
+            class="form-input w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-sm px-4 py-2.5 text-gray-800 dark:text-gray-100 transition-all"/>
+        </div>
+
+        <!-- Contacto -->
+        <div>
+          <label class="block text-[0.7rem] font-bold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-1.5">Contacto</label>
+          <input type="text" id="w_contacto" placeholder="Ej: 3833-123456 o dirección@muni.gov"
+            class="form-input w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-sm px-4 py-2.5 text-gray-800 dark:text-gray-100 transition-all"/>
+        </div>
+
+        <!-- Ícono Material -->
+        <div>
+          <label class="block text-[0.7rem] font-bold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-1.5">Ícono Material Icons *</label>
+          <div class="relative">
+            <input type="text" id="w_icon" value="music_note" required
+              class="form-input w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-sm px-4 py-2.5 pr-12 text-gray-800 dark:text-gray-100 transition-all"/>
+            <span id="iconPreviewBadge" class="material-icons absolute right-3 top-1/2 -translate-y-1/2 text-primary text-xl pointer-events-none">music_note</span>
+          </div>
+          <p class="text-[0.65rem] text-text-muted-light mt-1">Ej: music_note · sports_soccer · palette · sports_martial_arts</p>
+        </div>
+
+        <!-- Color del banner -->
+        <div>
+          <label class="block text-[0.7rem] font-bold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-1.5">Color de Fondo del Banner</label>
+          <div class="flex items-center gap-3">
+            <input type="color" id="w_color" value="#3b82f6"
+              class="h-10 w-16 rounded-xl cursor-pointer bg-gray-50 border border-gray-200 dark:border-gray-600 p-1 shrink-0"/>
+            <span class="text-sm font-mono text-text-muted-light dark:text-text-muted-dark" id="colorHexLabel">#3b82f6</span>
+            <span class="text-xs text-text-muted-light">(Ignorado si hay imagen)</span>
+          </div>
+        </div>
+
+        <!-- Descripción -->
+        <div class="col-span-1 md:col-span-2">
+          <label class="block text-[0.7rem] font-bold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-1.5">Descripción Breve *</label>
+          <textarea id="w_desc" rows="3" required placeholder="Contá de qué trata el taller, para quién es ideal y qué van a aprender..."
+            class="form-input w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-sm px-4 py-2.5 text-gray-800 dark:text-gray-100 transition-all resize-none"></textarea>
+        </div>
+
+        <!-- URL de imagen -->
+        <div class="col-span-1 md:col-span-2">
+          <label class="block text-[0.7rem] font-bold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-1.5">URL de la Imagen</label>
+          <input type="url" id="w_image" placeholder="https://ejemplo.com/imagen.jpg"
+            class="form-input w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-sm px-4 py-2.5 text-gray-800 dark:text-gray-100 transition-all"/>
+          <p class="text-[0.65rem] text-text-muted-light mt-1">Opcional. Si se provee, reemplaza al color de fondo.</p>
+        </div>
+      </div>
+
+      <!-- Preview -->
+      <div class="mt-4">
+        <p class="text-[0.7rem] font-bold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-2">Vista Previa de la Tarjeta</p>
+        <div id="previewCard" class="max-w-sm rounded-2xl shadow-md overflow-hidden bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800">
+          <div id="previewBanner" class="h-28 relative flex items-center justify-center overflow-hidden" style="background-color:#3b82f6">
+            <span id="previewIcon" class="material-icons text-white/60 text-5xl z-10">music_note</span>
+          </div>
+          <div class="p-4 flex flex-col gap-2 relative">
+            <span id="previewCategory" class="absolute -top-4 right-4 bg-white dark:bg-card-dark text-primary font-bold text-xs px-3 py-1 rounded-full shadow-md border border-gray-100 dark:border-gray-700 uppercase tracking-wider">Música</span>
+            <p id="previewTitle" class="text-base font-bold text-gray-900 dark:text-white leading-tight">Nombre del Taller</p>
+            <div class="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+              <span class="material-icons text-[14px]">location_on</span>
+              <span id="previewLocation">Lugar</span>
+            </div>
+            <div class="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+              <span class="material-icons text-[14px]">calendar_today</span>
+              <span id="previewDays">Días</span>
+            </div>
+            <div class="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+              <span class="material-icons text-[14px]">schedule</span>
+              <span id="previewSchedule">Horario</span>
+            </div>
+            <div class="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+              <span class="material-icons text-[14px]">sell</span>
+              <span id="previewCosto" class="font-bold text-green-600">Gratuito</span>
+            </div>
+            <div class="mt-1 flex justify-between items-center border-t border-gray-100 dark:border-gray-700 pt-2">
+              <span id="previewAge" class="text-xs font-semibold text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">Edad</span>
+              <span id="previewStatus" class="text-xs font-bold text-primary">Cupos Disponibles</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <div class="pt-4 border-t border-gray-100 dark:border-gray-700 flex justify-end gap-3">
+        <button type="button" id="resetBtn"
+          class="px-5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 text-sm font-semibold text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+          Limpiar
+        </button>
+        <button type="submit" id="submitBtn"
+          class="bg-primary hover:bg-[#0090c8] text-white px-6 py-2.5 rounded-xl font-bold flex items-center gap-2 shadow-md transition-all">
+          <span class="material-icons text-[20px]">save</span>
+          <span id="submitBtnText">Guardar Taller</span>
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <!-- ══ TALLERES PUBLICADOS ════════════════════════════════════════════════════ -->
+  <section class="section-card bg-white dark:bg-card-dark rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden anim-3">
+    <!-- Section header -->
+    <div class="flex items-center justify-between p-5 border-b border-gray-100 dark:border-gray-800">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500">
+          <span class="material-icons">list_alt</span>
+        </div>
+        <div>
+          <h2 class="text-base font-bold text-gray-900 dark:text-white">Talleres Publicados</h2>
+          <p class="text-[0.7rem] text-text-muted-light dark:text-text-muted-dark">Lista en tiempo real desde Firestore</p>
+        </div>
+      </div>
+      <!-- Search -->
+      <div class="relative hidden sm:block">
+        <span class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[18px]">search</span>
+        <input type="text" id="tableSearch" placeholder="Filtrar..." class="pl-9 pr-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-primary transition-all w-36 focus:w-48"/>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm text-left">
+        <thead class="text-[0.7rem] text-gray-500 uppercase bg-gray-50 dark:bg-gray-800/50 tracking-wide">
+          <tr>
+            <th class="px-5 py-3">Taller</th>
+            <th class="px-5 py-3">Categoría</th>
+            <th class="px-5 py-3 hidden sm:table-cell">Barrio</th>
+            <th class="px-5 py-3 hidden md:table-cell">Estado</th>
+            <th class="px-5 py-3 text-right">Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="workshopsTableBody" class="divide-y divide-gray-100 dark:divide-gray-800">
+          <!-- Skeleton loading -->
+          <tr>
+            <td colspan="5" class="px-5 py-10">
+              <div class="space-y-3">
+                <div class="skeleton h-5 w-full max-w-xs mx-auto"></div>
+                <div class="skeleton h-5 w-full max-w-sm mx-auto"></div>
+                <div class="skeleton h-5 w-full max-w-xs mx-auto"></div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Empty state placeholder (hidden by default) -->
+    <div id="emptyState" class="hidden flex flex-col items-center gap-3 py-12 text-center">
+      <span class="material-icons text-5xl text-gray-300 dark:text-gray-600">inbox</span>
+      <p class="text-sm font-semibold text-gray-400 dark:text-gray-500">No hay talleres publicados aún.</p>
+      <p class="text-xs text-gray-400 dark:text-gray-600">Usá el formulario de arriba para agregar el primero.</p>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  // ────────────────────────────────────────────────────────────────────────────
+  // TOAST SYSTEM
+  // ────────────────────────────────────────────────────────────────────────────
+  let toastTimer;
+  function showToast(msg, type = 'success') {
+    const toast = document.getElementById('toast');
+    const icon  = document.getElementById('toastIcon');
+    const text  = document.getElementById('toastMsg');
+    clearTimeout(toastTimer);
+    toast.className = `toast ${type}`;
+    icon.textContent = type === 'success' ? 'check_circle' : 'error';
+    icon.style.color = type === 'success' ? '#00a8e8' : '#f56565';
+    text.textContent = msg;
+    toast.classList.add('show');
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 3500);
+  }
+
+  // ────────────────────────────────────────────────────────────────────────────
+  // LIVE PREVIEW
+  // ────────────────────────────────────────────────────────────────────────────
+  // ── Costo toggle ───────────────────────────────────────────────
+  function toggleCosto() {
+    const btn   = document.getElementById('w_costo_toggle');
+    const knob  = document.getElementById('w_costo_knob');
+    const label = document.getElementById('w_costo_label');
+    const hidden= document.getElementById('w_costo');
+    const isGratuito = hidden.value === 'gratuito';
+    if (isGratuito) {
+      // switch to arancelado
+      hidden.value = 'arancelado';
+      btn.classList.replace('bg-green-500','bg-gray-400');
+      knob.classList.replace('translate-x-8','translate-x-1');
+      label.textContent = 'Arancelado';
+      label.className = 'text-sm font-semibold text-gray-500';
+    } else {
+      // switch to gratuito
+      hidden.value = 'gratuito';
+      btn.classList.replace('bg-gray-400','bg-green-500');
+      knob.classList.replace('translate-x-1','translate-x-8');
+      label.textContent = 'Gratuito';
+      label.className = 'text-sm font-semibold text-green-600';
+    }
+    updatePreview();
+  }
+
+  function getSelectedDays() {
+    return [...document.querySelectorAll('.dia-check:checked')].map(c => c.value);
+  }
+
+  function buildScheduleStr() {
+    const dias = getSelectedDays();
+    const ini  = document.getElementById('w_horaInicio').value;
+    const fin  = document.getElementById('w_horaFin').value;
+    const diasStr = dias.length ? dias.join(' y ') : 'Días a confirmar';
+    const horaStr = ini ? (fin ? `${ini} a ${fin} hs` : `${ini} hs`) : '';
+    return horaStr ? `${diasStr} · ${horaStr}` : diasStr;
+  }
+
+  function updatePreview() {
+    const title    = document.getElementById('w_title').value    || 'Nombre del Taller';
+    const category = document.getElementById('w_category').value || 'Categoría';
+    const location = document.getElementById('w_location').value || 'Lugar';
+    const ageText  = document.getElementById('w_ageText').value  || 'Edad';
+    const imageUrl = document.getElementById('w_image').value;
+    const color    = document.getElementById('w_color').value;
+    const icon     = document.getElementById('w_icon').value     || 'music_note';
+    const status   = document.getElementById('w_status').value;
+    const costo    = document.getElementById('w_costo').value;
+    const dias     = getSelectedDays();
+
+    document.getElementById('previewTitle').textContent    = title;
+    document.getElementById('previewCategory').textContent = category.replace(/[^\w\s]/gi, '').trim();
+    document.getElementById('previewLocation').textContent = location;
+    document.getElementById('previewDays').textContent     = dias.length ? dias.join(', ') : 'Días a confirmar';
+    document.getElementById('previewSchedule').textContent = buildScheduleStr();
+    document.getElementById('previewAge').textContent      = ageText;
+    document.getElementById('previewIcon').textContent     = icon;
+    document.getElementById('iconPreviewBadge').textContent = icon;
+
+    const costoEl = document.getElementById('previewCosto');
+    costoEl.textContent = costo === 'gratuito' ? 'Gratuito' : 'Arancelado';
+    costoEl.className = costo === 'gratuito'
+      ? 'font-bold text-green-600'
+      : 'font-bold text-orange-500';
+
+    // Status color
+    const statusEl = document.getElementById('previewStatus');
+    statusEl.textContent = status;
+    statusEl.className = 'text-xs font-bold';
+    if (status === 'Lleno')            statusEl.classList.add('text-red-500');
+    else if (status === 'Lista de Espera') statusEl.classList.add('text-orange-500');
+    else                               statusEl.classList.add('text-green-600');
+
+    // Banner
+    const banner = document.getElementById('previewBanner');
+    if (imageUrl) {
+      banner.style.backgroundImage   = `url('${imageUrl}')`;
+      banner.style.backgroundSize    = 'cover';
+      banner.style.backgroundPosition = 'center';
+      banner.style.backgroundColor   = '';
+    } else {
+      banner.style.backgroundImage   = '';
+      banner.style.backgroundColor   = color;
+    }
+
+    document.getElementById('colorHexLabel').textContent = color;
+  }
+
+  // Attach listeners for live preview
+  ['w_title','w_category','w_location','w_horaInicio','w_horaFin','w_ageText','w_image','w_icon','w_color','w_status'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', updatePreview);
+    if (el && el.tagName === 'SELECT') el.addEventListener('change', updatePreview);
+  });
+  document.querySelectorAll('.dia-check').forEach(c => c.addEventListener('change', updatePreview));
+
+  // ────────────────────────────────────────────────────────────────────────────
+  // TABLE SEARCH FILTER
+  // ────────────────────────────────────────────────────────────────────────────
+  document.getElementById('tableSearch')?.addEventListener('input', function() {
+    const q = this.value.toLowerCase();
+    document.querySelectorAll('#workshopsTableBody .workshop-row').forEach(row => {
+      row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+  });
+
+  // ────────────────────────────────────────────────────────────────────────────
+  // RESET
+  // ────────────────────────────────────────────────────────────────────────────
+  document.getElementById('resetBtn').addEventListener('click', () => {
+    document.getElementById('addWorkshopForm').reset();
+    document.getElementById('w_color').value = '#3b82f6';
+    document.getElementById('w_icon').value  = 'music_note';
+    // reset costo toggle to gratuito
+    document.getElementById('w_costo').value = 'gratuito';
+    const btn  = document.getElementById('w_costo_toggle');
+    const knob = document.getElementById('w_costo_label');
+    btn.classList.remove('bg-gray-400'); btn.classList.add('bg-green-500');
+    document.getElementById('w_costo_knob').className = 'inline-block h-5 w-5 translate-x-8 transform rounded-full bg-white shadow transition-transform';
+    knob.textContent = 'Gratuito';
+    knob.className = 'text-sm font-semibold text-green-600';
+    updatePreview();
+  });
+
+  // ────────────────────────────────────────────────────────────────────────────
+  // STATUS BADGE HELPER
+  // ────────────────────────────────────────────────────────────────────────────
+  function statusBadge(status) {
+    const map = {
+      'Cupos Disponibles': 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400',
+      'Lista de Espera':   'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400',
+      'Lleno':             'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400',
+    };
+    const cls = map[status] || 'bg-gray-100 text-gray-600';
+    return `<span class="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full ${cls}">${status}</span>`;
+  }
+
+  // ────────────────────────────────────────────────────────────────────────────
+  // INIT ADMIN
+  // ────────────────────────────────────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', () => {
+    const checkFirebase = setInterval(() => {
+      if (window.db) {
+        clearInterval(checkFirebase);
+        initAdmin();
+      }
+    }, 100);
+
+    function initAdmin() {
+      const form      = document.getElementById('addWorkshopForm');
+      const tableBody = document.getElementById('workshopsTableBody');
+      const submitBtn = document.getElementById('submitBtn');
+      const submitBtnText = document.getElementById('submitBtnText');
+      const overlay   = document.getElementById('loadingOverlay');
+      const emptyState = document.getElementById('emptyState');
+
+      // ── Real-time listener ──────────────────────────────────────
+      window.onSnapshot(window.collection(window.db, "workshops"), (snapshot) => {
+        tableBody.innerHTML = '';
+
+        const total    = snapshot.size;
+        const open     = snapshot.docs.filter(d => d.data().status === 'Cupos Disponibles').length;
+        const full     = snapshot.docs.filter(d => d.data().status === 'Lleno').length;
+        document.getElementById('statTotal').textContent = total;
+        document.getElementById('statOpen').textContent  = open;
+        document.getElementById('statFull').textContent  = full;
+
+        if (snapshot.empty) {
+          emptyState.classList.remove('hidden');
+          return;
+        }
+        emptyState.classList.add('hidden');
+
+        snapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+          const tr = document.createElement('tr');
+          tr.className = 'workshop-row transition-colors';
+          tr.innerHTML = `
+            <td class="px-5 py-4">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                  <span class="material-icons text-[17px]">${data.icon || 'school'}</span>
+                </div>
+                <div>
+                  <p class="font-bold text-gray-900 dark:text-white text-sm leading-tight">${data.title}</p>
+                  <p class="text-[0.68rem] text-text-muted-light dark:text-text-muted-dark">${data.schedule || ''}</p>
+                </div>
+              </div>
+            </td>
+            <td class="px-5 py-4">
+              <span class="bg-primary/10 text-primary px-2.5 py-1 rounded-full text-xs font-bold uppercase">${data.category}</span>
+            </td>
+            <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-300 hidden sm:table-cell">${data.barrio}</td>
+            <td class="px-5 py-4 hidden md:table-cell">${statusBadge(data.status)}</td>
+            <td class="px-5 py-4 text-right">
+              <div class="flex items-center justify-end gap-1">
+                <a href="descripcion.html?id=${docSnap.id}" target="_blank"
+                  class="btn-delete p-2 rounded-full text-gray-400 hover:text-primary hover:bg-primary/10 transition-colors"
+                  title="Ver detalle">
+                  <span class="material-icons text-[18px]">open_in_new</span>
+                </a>
+                <button onclick="deleteWorkshop('${docSnap.id}')"
+                  class="btn-delete p-2 rounded-full text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                  title="Eliminar taller">
+                  <span class="material-icons text-[18px]">delete</span>
+                </button>
+              </div>
+            </td>
+          `;
+          tableBody.appendChild(tr);
+        });
+      });
+
+      // ── Form Submit ─────────────────────────────────────────────
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        submitBtn.disabled = true;
+        submitBtnText.textContent = 'Guardando...';
+        submitBtn.querySelector('.material-icons').textContent = 'hourglass_empty';
+        overlay.classList.add('active');
+
+        try {
+          const dias     = getSelectedDays();
+          const horaIni  = document.getElementById('w_horaInicio').value;
+          const horaFin  = document.getElementById('w_horaFin').value;
+          const newDoc = {
+            title:       document.getElementById('w_title').value.trim(),
+            category:    document.getElementById('w_category').value,
+            barrio:      document.getElementById('w_barrio').value,
+            location:    document.getElementById('w_location').value.trim(),
+            dias:        dias,
+            horaInicio:  horaIni,
+            horaFin:     horaFin,
+            schedule:    buildScheduleStr(),
+            ageFilter:   document.getElementById('w_age').value,
+            ageText:     document.getElementById('w_ageText').value.trim(),
+            costo:       document.getElementById('w_costo').value,
+            profesor:    document.getElementById('w_profesor').value.trim(),
+            contacto:    document.getElementById('w_contacto').value.trim(),
+            description: document.getElementById('w_desc').value.trim(),
+            imageUrl:    document.getElementById('w_image').value.trim(),
+            status:      document.getElementById('w_status').value,
+            icon:        document.getElementById('w_icon').value.trim() || 'music_note',
+            bannerColor: document.getElementById('w_color').value,
+            createdAt:   new Date().toISOString()
+          };
+
+          await window.addDoc(window.collection(window.db, "workshops"), newDoc);
+
+          form.reset();
+          document.getElementById('w_color').value = '#3b82f6';
+          document.getElementById('w_icon').value  = 'music_note';
+          updatePreview();
+          showToast('✅ Taller publicado correctamente', 'success');
+        } catch (error) {
+          console.error("Error:", error);
+          showToast('Error al guardar: ' + error.message, 'error');
+        } finally {
+          submitBtn.disabled = false;
+          submitBtnText.textContent = 'Guardar Taller';
+          submitBtn.querySelector('.material-icons').textContent = 'save';
+          overlay.classList.remove('active');
+        }
+      });
+    }
+
+    // ── Delete ────────────────────────────────────────────────────
+    window.deleteWorkshop = async (id) => {
+      if (!confirm('¿Eliminar este taller? Esta acción no se puede deshacer.')) return;
+      document.getElementById('loadingOverlay').classList.add('active');
+      try {
+        await window.deleteDoc(window.doc(window.db, "workshops", id));
+        showToast('Taller eliminado correctamente', 'success');
+      } catch (e) {
+        showToast('Error: ' + e.message, 'error');
+      } finally {
+        document.getElementById('loadingOverlay').classList.remove('active');
+      }
+    };
+
+    // Init preview on load
+    updatePreview();
+  });
+</script>
+
+</body>
+</html>
