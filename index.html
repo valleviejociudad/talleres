@@ -10,7 +10,7 @@
 <!-- Firebase SDKs -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+  import { getFirestore, collection, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCxBeZMj2YQc9GL2BAC6-kqhJi6KeLCbng",
@@ -25,6 +25,7 @@
   window.db = getFirestore(app);
   window.collection = collection;
   window.getDocs = getDocs;
+  window.onSnapshot = onSnapshot;
 </script>
 
 <script>
@@ -60,6 +61,164 @@
         .no-scrollbar {
             -ms-overflow-style: none;scrollbar-width: none;}
     </style>
+<style>
+  /* ===== DESKTOP LAYOUT (≥1024px) ===== */
+  @media (min-width: 1024px) {
+    body {
+      min-height: 100dvh;
+    }
+
+    /* Header */
+    .desktop-header {
+      display: flex !important;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 2rem;
+      max-width: 1280px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    header {
+      justify-content: center;
+    }
+    header > img {
+      height: 3rem;
+    }
+
+    /* Page wrapper: sidebar + content */
+    .desktop-page-wrapper {
+      display: flex;
+      gap: 0;
+      max-width: 1280px;
+      margin: 0 auto;
+      min-height: calc(100dvh - 64px);
+    }
+
+    /* Sidebar */
+    .desktop-sidebar {
+      display: block !important;
+      width: 280px;
+      min-width: 280px;
+      flex-shrink: 0;
+      padding: 2rem 1.5rem;
+      border-right: 1px solid #e2e8f0;
+      position: sticky;
+      top: 64px;
+      height: calc(100dvh - 64px);
+      overflow-y: auto;
+    }
+    .dark .desktop-sidebar {
+      border-right-color: #2d3748;
+    }
+
+    /* Main content area */
+    .desktop-main-content {
+      flex: 1;
+      padding: 2rem;
+      min-width: 0;
+    }
+
+    /* Hide mobile filter row */
+    .mobile-filters-row {
+      display: none !important;
+    }
+
+    /* Desktop search */
+    .desktop-search-wrapper {
+      display: block !important;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Cards grid */
+    .desktop-cards-grid {
+      display: grid !important;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.25rem;
+    }
+    /* Remove stacked single-column layout on desktop */
+    .desktop-cards-grid .space-y-5 {
+      display: contents;
+    }
+
+    /* Make all desktop cards same height style (no "featured" banner difference) */
+    .desktop-cards-grid article {
+      height: 100%;
+    }
+
+    /* Sidebar filter sections */
+    .sidebar-section-title {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #a0aec0;
+      margin-bottom: 0.5rem;
+      margin-top: 1.25rem;
+    }
+    .sidebar-section-title:first-child {
+      margin-top: 0;
+    }
+    .sidebar-chips {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+    .sidebar-chip {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.45rem 0.75rem;
+      border-radius: 0.75rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      border: 1.5px solid transparent;
+      background: transparent;
+      color: #4a5568;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s, border-color 0.15s,
+                  transform 0.15s cubic-bezier(0.34,1.56,0.64,1);
+      width: 100%;
+      text-align: left;
+    }
+    .dark .sidebar-chip {
+      color: #a0aec0;
+    }
+    .sidebar-chip:hover {
+      background: rgba(0,168,232,0.08);
+      color: #00a8e8;
+      border-color: rgba(0,168,232,0.2);
+    }
+    .sidebar-chip.active {
+      background: #00a8e8;
+      color: white;
+      border-color: #00a8e8;
+      transform: scale(1.03);
+    }
+    .sidebar-chip .material-icons {
+      font-size: 17px;
+    }
+
+    /* Hero title desktop */
+    .desktop-page-title {
+      font-size: 1.6rem;
+    }
+
+    /* Desktop result count */
+    .desktop-result-count {
+      display: block !important;
+    }
+  }
+
+  /* Hide desktop-only elements on mobile */
+  .desktop-sidebar,
+  .desktop-search-wrapper,
+  .desktop-result-count {
+    display: none;
+  }
+  .desktop-cards-grid {
+    display: block;
+  }
+</style>
 <style>
     body {
       min-height: max(884px, 100dvh);
@@ -228,18 +387,56 @@
 <header class="sticky top-0 z-50 bg-white dark:bg-card-dark shadow-sm px-4 py-3 flex justify-center items-center transition-colors duration-200">
 <img src="valleviejo.svg" alt="Valle Viejo" class="h-10"/>
 </header>
-<main class="px-4 py-6 space-y-6">
+
+<!-- Desktop page wrapper -->
+<div class="desktop-page-wrapper">
+
+<!-- ===== DESKTOP SIDEBAR ===== -->
+<aside class="desktop-sidebar bg-white dark:bg-card-dark">
+  <p class="sidebar-section-title">Buscar</p>
+  <div class="relative mb-4">
+    <span class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" style="font-size:18px">search</span>
+    <input id="search-input-desktop" class="w-full pl-9 pr-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-primary focus:outline-none transition-shadow" placeholder="Buscar talleres..." type="text" oninput="applyFilters()"/>
+  </div>
+
+  <p class="sidebar-section-title">Barrio</p>
+  <div class="sidebar-chips" id="sidebar-barrios">
+    <button class="sidebar-chip active" data-filter2="barrio" data-value2=""><span class="material-icons">location_on</span>Todos los Barrios</button>
+    <button class="sidebar-chip" data-filter2="barrio" data-value2="Centro"><span class="material-icons">location_on</span>Centro</button>
+    <button class="sidebar-chip" data-filter2="barrio" data-value2="La Antena"><span class="material-icons">location_on</span>La Antena</button>
+    <button class="sidebar-chip" data-filter2="barrio" data-value2="Santa Cruz"><span class="material-icons">location_on</span>Santa Cruz</button>
+  </div>
+
+  <p class="sidebar-section-title">Categoría</p>
+  <div class="sidebar-chips" id="sidebar-categorias">
+    <button class="sidebar-chip active" data-filter2="category" data-value2=""><span class="material-icons">school</span>Todos</button>
+    <span id="sidebar-cats-loading" class="text-xs text-gray-400 px-1">Cargando...</span>
+  </div>
+
+  <p class="sidebar-section-title">Edad</p>
+  <div class="sidebar-chips" id="sidebar-edades">
+    <button class="sidebar-chip active" data-filter2="edad" data-value2=""><span class="material-icons">people</span>Todas las Edades</button>
+    <button class="sidebar-chip" data-filter2="edad" data-value2="Niños"><span class="material-icons">child_care</span>Niños</button>
+    <button class="sidebar-chip" data-filter2="edad" data-value2="Adolescentes"><span class="material-icons">face</span>Adolescentes</button>
+    <button class="sidebar-chip" data-filter2="edad" data-value2="Adultos"><span class="material-icons">person</span>Adultos</button>
+    <button class="sidebar-chip" data-filter2="edad" data-value2="Mayores"><span class="material-icons">elderly</span>Mayores</button>
+  </div>
+</aside>
+<!-- END DESKTOP SIDEBAR -->
+
+<main class="px-4 py-6 space-y-6 desktop-main-content">
 <div class="space-y-4">
-<h1 class="text-2xl font-bold text-gray-900 dark:text-white">Talleres Municipales</h1>
+<h1 class="text-2xl font-bold text-gray-900 dark:text-white desktop-page-title">Talleres Municipales</h1>
 <p class="text-sm text-text-muted-light dark:text-text-muted-dark">Encontrá el taller ideal para vos cerca de tu barrio.</p>
+<!-- Mobile search (hidden on desktop) -->
 <div class="relative">
 <span class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">search</span>
 <input id="search-input" class="w-full pl-10 pr-4 py-3 rounded-full border-none bg-white dark:bg-card-dark shadow-sm text-sm text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-primary focus:outline-none transition-shadow" placeholder="Buscar talleres..." type="text" oninput="applyFilters()"/>
 </div>
 </div>
 
-<!-- Filtros con dropdowns -->
-<div style="position:relative; z-index:50;">
+<!-- Filtros con dropdowns (mobile only) -->
+<div class="mobile-filters-row" style="position:relative; z-index:50;">
 <div class="flex flex-wrap gap-2">
 
   <!-- Dropdown: Barrios -->
@@ -266,10 +463,7 @@
     </button>
     <div class="filter-popover" id="pop-talleres">
       <button class="filter-chip active" data-filter="category" data-value="">Todos</button>
-      <button class="filter-chip" data-filter="category" data-value="Música">Música</button>
-      <button class="filter-chip" data-filter="category" data-value="Deportes">Deportes</button>
-      <button class="filter-chip" data-filter="category" data-value="Arte">Arte</button>
-      <button class="filter-chip" data-filter="category" data-value="Oficios">Oficios</button>
+      <span id="category-chips-loading" class="text-xs text-gray-400 px-1">Cargando...</span>
     </div>
   </div>
 
@@ -291,6 +485,7 @@
 
 </div>
 </div>
+<!-- END mobile filters -->
 
 <script>
   const allPopoverIds = ['pop-barrios', 'pop-talleres', 'pop-edades'];
@@ -317,7 +512,7 @@
     }
   });
 
-  document.querySelectorAll('.filter-popover').forEach(popover => {
+  function attachChipListeners(popover) {
     popover.querySelectorAll('.filter-chip').forEach(chip => {
       chip.addEventListener('click', function(e) {
         e.stopPropagation();
@@ -326,10 +521,74 @@
         applyFilters();
       });
     });
-  });
+  }
+
+  // Attach listeners to static popovers (barrios, edades)
+  document.querySelectorAll('#pop-barrios, #pop-edades').forEach(attachChipListeners);
+
+  // ── Desktop sidebar chip listeners ────────────────────────────
+  function attachSidebarChipListeners(container) {
+    container.querySelectorAll('.sidebar-chip').forEach(chip => {
+      chip.addEventListener('click', function() {
+        const filterType = this.dataset.filter2;
+        container.querySelectorAll('.sidebar-chip').forEach(c => c.classList.remove('active'));
+        this.classList.add('active');
+        applyFilters();
+      });
+    });
+  }
+  document.querySelectorAll('#sidebar-barrios, #sidebar-edades, #sidebar-categorias').forEach(attachSidebarChipListeners);
+
+  // ── Load categories dynamically from Firestore ────────────────
+  function loadCategoryChips() {
+    const waitForDb = setInterval(() => {
+      if (!window.db || !window.onSnapshot) return;
+      clearInterval(waitForDb);
+      window.onSnapshot(window.collection(window.db, 'categories'), (snapshot) => {
+        const cats = snapshot.docs
+          .map(d => ({ id: d.id, ...d.data() }))
+          .sort((a, b) => (a.order || 0) - (b.order || 0));
+
+        // ── Populate mobile dropdown ──
+        const pop = document.getElementById('pop-talleres');
+        pop.querySelectorAll('.filter-chip:not([data-value=""])').forEach(c => c.remove());
+        const loading = document.getElementById('category-chips-loading');
+        if (loading) loading.remove();
+        cats.forEach(cat => {
+          const btn = document.createElement('button');
+          btn.className = 'filter-chip';
+          btn.dataset.filter = 'category';
+          btn.dataset.value  = cat.name;
+          btn.textContent    = `${cat.emoji} ${cat.name}`;
+          pop.appendChild(btn);
+        });
+        attachChipListeners(pop);
+
+        // ── Populate desktop sidebar ──
+        const sidebarCats = document.getElementById('sidebar-categorias');
+        sidebarCats.querySelectorAll('.sidebar-chip:not([data-value2=""])').forEach(c => c.remove());
+        const sidebarLoading = document.getElementById('sidebar-cats-loading');
+        if (sidebarLoading) sidebarLoading.remove();
+        cats.forEach(cat => {
+          const btn = document.createElement('button');
+          btn.className = 'sidebar-chip';
+          btn.dataset.filter2 = 'category';
+          btn.dataset.value2  = cat.name;
+          btn.innerHTML = `<span class="material-icons" style="font-size:17px">school</span>${cat.emoji} ${cat.name}`;
+          sidebarCats.appendChild(btn);
+        });
+        attachSidebarChipListeners(sidebarCats);
+      });
+    }, 100);
+  }
+
+  document.addEventListener('DOMContentLoaded', loadCategoryChips);
 </script>
 
-<div class="space-y-5" id="workshopsContainer">
+<!-- Result count (desktop only) -->
+<p class="desktop-result-count text-xs text-gray-400 mb-3" id="result-count"></p>
+
+<div class="desktop-cards-grid" id="workshopsContainer">
   <!-- Loading skeleton initially -->
   <div class="animate-pulse flex flex-col gap-4 p-4 border border-gray-100 dark:border-gray-800 rounded-2xl bg-white dark:bg-card-dark">
     <div class="h-32 bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
@@ -338,6 +597,8 @@
   </div>
 </div>
 </main>
+
+</div><!-- end desktop-page-wrapper -->
 
 <script>
   // ── Workshop data store ───────────────────────────────────────
@@ -407,36 +668,45 @@
     const container = document.getElementById('workshopsContainer');
     if (list.length === 0) {
       container.innerHTML = '<p class="text-center text-gray-400 py-10">No se encontraron talleres para tu búsqueda.</p>';
+      const rc = document.getElementById('result-count'); if (rc) rc.textContent = '';
       return;
     }
     container.innerHTML = list.map((doc, i) => buildCardHTML(doc, i === 0)).join('');
+    const rc = document.getElementById('result-count');
+    if (rc) rc.textContent = `${list.length} taller${list.length !== 1 ? 'es' : ''} encontrado${list.length !== 1 ? 's' : ''}`;
     initScrollReveal();
   }
 
-  // ── Apply search + filters ────────────────────────────────────
+  // ── Apply search + filters (mobile + desktop) ─────────────────
   function applyFilters() {
-    const query = (document.getElementById('search-input').value || '').toLowerCase().trim();
+    const isDesktop = window.matchMedia('(min-width: 1024px)').matches;
 
-    // Active chip values
-    const activeBarrio   = (document.querySelector('#pop-barrios .filter-chip.active')?.dataset.value   || '').toLowerCase();
-    const activeCategory = (document.querySelector('#pop-talleres .filter-chip.active')?.dataset.value  || '').toLowerCase();
-    const activeEdad     = (document.querySelector('#pop-edades .filter-chip.active')?.dataset.value    || '').toLowerCase();
+    const mobileQuery  = (document.getElementById('search-input')?.value || '').toLowerCase().trim();
+    const desktopQuery = (document.getElementById('search-input-desktop')?.value || '').toLowerCase().trim();
+    const query = isDesktop ? desktopQuery : mobileQuery;
+
+    const mobileBarrio   = (document.querySelector('#pop-barrios .filter-chip.active')?.dataset.value   || '').toLowerCase();
+    const mobileCategory = (document.querySelector('#pop-talleres .filter-chip.active')?.dataset.value  || '').toLowerCase();
+    const mobileEdad     = (document.querySelector('#pop-edades .filter-chip.active')?.dataset.value    || '').toLowerCase();
+
+    const sidebarBarrio   = (document.querySelector('#sidebar-barrios .sidebar-chip.active')?.dataset.value2   || '').toLowerCase();
+    const sidebarCategory = (document.querySelector('#sidebar-categorias .sidebar-chip.active')?.dataset.value2 || '').toLowerCase();
+    const sidebarEdad     = (document.querySelector('#sidebar-edades .sidebar-chip.active')?.dataset.value2     || '').toLowerCase();
+
+    const activeBarrio   = isDesktop ? sidebarBarrio   : mobileBarrio;
+    const activeCategory = isDesktop ? sidebarCategory : mobileCategory;
+    const activeEdad     = isDesktop ? sidebarEdad     : mobileEdad;
 
     const filtered = window.allWorkshops.filter(({data}) => {
-      // Search: match title, description, location, schedule
       if (query) {
         const haystack = [
           data.title, data.description, data.location, data.schedule, data.category, data.ageText
         ].join(' ').toLowerCase();
         if (!haystack.includes(query)) return false;
       }
-      // Barrio filter (matches location field)
-      if (activeBarrio && !( data.location || '').toLowerCase().includes(activeBarrio)) return false;
-      // Category filter
-      if (activeCategory && (data.category || '').toLowerCase() !== activeCategory) return false;
-      // Age filter (matches ageText field)
-      if (activeEdad && !(data.ageText || '').toLowerCase().includes(activeEdad)) return false;
-
+      if (activeBarrio   && !(data.location || '').toLowerCase().includes(activeBarrio)) return false;
+      if (activeCategory && (data.category  || '').toLowerCase() !== activeCategory)     return false;
+      if (activeEdad     && !(data.ageText  || '').toLowerCase().includes(activeEdad))   return false;
       return true;
     });
 

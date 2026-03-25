@@ -253,14 +253,20 @@
   <!-- ══ FORM: NUEVO TALLER ═════════════════════════════════════════════════════ -->
   <section class="section-card bg-white dark:bg-card-dark rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden anim-2">
     <!-- Section header -->
-    <div class="flex items-center gap-3 p-5 border-b border-gray-100 dark:border-gray-800">
-      <div class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-        <span class="material-icons">add_circle</span>
+    <div class="flex items-center justify-between p-5 border-b border-gray-100 dark:border-gray-800">
+      <div class="flex items-center gap-3">
+        <div id="formHeaderIcon" class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+          <span class="material-icons">add_circle</span>
+        </div>
+        <div>
+          <h2 id="formHeaderTitle" class="text-base font-bold text-gray-900 dark:text-white">Nuevo Taller</h2>
+          <p id="formHeaderSub" class="text-[0.7rem] text-text-muted-light dark:text-text-muted-dark">Completá los campos para publicar un taller</p>
+        </div>
       </div>
-      <div>
-        <h2 class="text-base font-bold text-gray-900 dark:text-white">Nuevo Taller</h2>
-        <p class="text-[0.7rem] text-text-muted-light dark:text-text-muted-dark">Completá los campos para publicar un taller</p>
-      </div>
+      <button type="button" id="cancelEditBtn" onclick="cancelEdit()" class="hidden items-center gap-1 text-sm font-semibold text-gray-500 hover:text-red-500 transition-colors">
+        <span class="material-icons text-[18px]">close</span>
+        Cancelar
+      </button>
     </div>
 
     <!-- Form body -->
@@ -274,29 +280,21 @@
             class="form-input w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-sm px-4 py-2.5 text-gray-800 dark:text-gray-100 transition-all"/>
         </div>
 
-        <!-- Categoría -->
+        <!-- Categoría (populated dynamically from Firestore) -->
         <div>
           <label class="block text-[0.7rem] font-bold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-1.5">Categoría *</label>
           <select id="w_category" required
             class="form-input w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-sm px-4 py-2.5 text-gray-800 dark:text-gray-100 transition-all">
-            <option value="Música">🎵 Música</option>
-            <option value="Deportes">⚽ Deportes</option>
-            <option value="Arte">🎨 Arte</option>
-            <option value="Oficios">🔧 Oficios</option>
-            <option value="Danza">💃 Danza</option>
-            <option value="Teatro">🎭 Teatro</option>
-            <option value="Tecnología">💻 Tecnología</option>
+            <option value="" disabled selected>Cargando categorías...</option>
           </select>
         </div>
 
-        <!-- Barrio -->
+        <!-- Barrio (dynamic from Firestore) -->
         <div>
           <label class="block text-[0.7rem] font-bold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-1.5">Barrio *</label>
           <select id="w_barrio" required
             class="form-input w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-sm px-4 py-2.5 text-gray-800 dark:text-gray-100 transition-all">
-            <option value="Centro">Centro</option>
-            <option value="La Antena">La Antena</option>
-            <option value="Santa Cruz">Santa Cruz</option>
+            <option value="" disabled selected>Cargando barrios...</option>
           </select>
         </div>
 
@@ -347,16 +345,12 @@
             class="form-input w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-sm px-4 py-2.5 text-gray-800 dark:text-gray-100 transition-all"/>
         </div>
 
-        <!-- Grupo de edad -->
+        <!-- Grupo de edad (dynamic from Firestore) -->
         <div>
           <label class="block text-[0.7rem] font-bold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-1.5">Grupo de Edad *</label>
           <select id="w_age" required
             class="form-input w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-sm px-4 py-2.5 text-gray-800 dark:text-gray-100 transition-all">
-            <option value="Niños">Niños</option>
-            <option value="Adolescentes">Adolescentes</option>
-            <option value="Adultos">Adultos</option>
-            <option value="Mayores">Mayores</option>
-            <option value="Todas las Edades">Todas las Edades</option>
+            <option value="" disabled selected>Cargando edades...</option>
           </select>
         </div>
 
@@ -443,6 +437,17 @@
             class="form-input w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-sm px-4 py-2.5 text-gray-800 dark:text-gray-100 transition-all"/>
           <p class="text-[0.65rem] text-text-muted-light mt-1">Opcional. Si se provee, reemplaza al color de fondo.</p>
         </div>
+
+        <!-- URL de Inscripción -->
+        <div class="col-span-1 md:col-span-2">
+          <label class="block text-[0.7rem] font-bold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-1.5">URL del Botón de Inscripción</label>
+          <div class="relative">
+            <span class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-primary text-[18px] pointer-events-none">link</span>
+            <input type="url" id="w_inscripcionUrl" placeholder="https://forms.gle/... o enlace de inscripción"
+              class="form-input w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-sm pl-10 pr-4 py-2.5 text-gray-800 dark:text-gray-100 transition-all"/>
+          </div>
+          <p class="text-[0.65rem] text-text-muted-light mt-1">Opcional. Si no se completa, el botón "Inscribirme Ahora" no se mostrará.</p>
+        </div>
       </div>
 
       <!-- Preview -->
@@ -487,7 +492,7 @@
         </button>
         <button type="submit" id="submitBtn"
           class="bg-primary hover:bg-[#0090c8] text-white px-6 py-2.5 rounded-xl font-bold flex items-center gap-2 shadow-md transition-all">
-          <span class="material-icons text-[20px]">save</span>
+          <span id="submitBtnIcon" class="material-icons text-[20px]">save</span>
           <span id="submitBtnText">Guardar Taller</span>
         </button>
       </div>
@@ -549,9 +554,314 @@
     </div>
   </section>
 
+  <!-- ══ GESTIÓN DE CATEGORÍAS ═══════════════════════════════════════════════════ -->
+  <section class="section-card bg-white dark:bg-card-dark rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden anim-3">
+    <!-- Section header -->
+    <div class="flex items-center gap-3 p-5 border-b border-gray-100 dark:border-gray-800">
+      <div class="w-9 h-9 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600">
+        <span class="material-icons">category</span>
+      </div>
+      <div>
+        <h2 class="text-base font-bold text-gray-900 dark:text-white">Gestión de Categorías</h2>
+        <p class="text-[0.7rem] text-text-muted-light dark:text-text-muted-dark">Estas categorías aparecen en los filtros y en el formulario</p>
+      </div>
+    </div>
+
+    <div class="p-5 space-y-4">
+      <!-- Add category form -->
+      <div class="flex gap-2">
+        <input type="text" id="cat_emoji" placeholder="🎵" maxlength="4"
+          class="form-input w-16 shrink-0 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-xl px-2 py-2.5 text-center text-gray-800 dark:text-gray-100 transition-all"/>
+        <input type="text" id="cat_name" placeholder="Nombre de la categoría"
+          class="form-input flex-1 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-sm px-4 py-2.5 text-gray-800 dark:text-gray-100 transition-all"/>
+        <button onclick="addCategory()"
+          class="shrink-0 flex items-center gap-1 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2.5 rounded-xl font-bold text-sm shadow-sm transition-all">
+          <span class="material-icons text-[18px]">add</span>
+          Agregar
+        </button>
+      </div>
+
+      <!-- Category list -->
+      <div id="categoryList" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+        <div class="col-span-full text-center py-4">
+          <div class="skeleton h-8 w-full rounded-xl mb-2"></div>
+          <div class="skeleton h-8 w-3/4 rounded-xl mx-auto"></div>
+        </div>
+      </div>
+
+      <!-- BARRIOS subsection -->
+      <div class="border-t border-gray-100 dark:border-gray-700 pt-4">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-7 h-7 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600">
+            <span class="material-icons text-[15px]">location_on</span>
+          </div>
+          <h3 class="text-sm font-bold text-gray-800 dark:text-white">Barrios</h3>
+        </div>
+        <div class="flex gap-2 mb-3">
+          <input type="text" id="barrio_name" placeholder="Nombre del barrio"
+            class="form-input flex-1 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-sm px-4 py-2.5 text-gray-800 dark:text-gray-100 transition-all"/>
+          <button onclick="addBarrio()"
+            class="shrink-0 flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl font-bold text-sm shadow-sm transition-all">
+            <span class="material-icons text-[18px]">add</span>
+            Agregar
+          </button>
+        </div>
+        <div id="barrioList" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          <div class="skeleton col-span-full h-8 rounded-xl"></div>
+        </div>
+      </div>
+
+      <!-- EDADES subsection -->
+      <div class="border-t border-gray-100 dark:border-gray-700 pt-4">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-7 h-7 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600">
+            <span class="material-icons text-[15px]">people</span>
+          </div>
+          <h3 class="text-sm font-bold text-gray-800 dark:text-white">Grupos de Edad</h3>
+        </div>
+        <div class="flex gap-2 mb-3">
+          <input type="text" id="edad_name" placeholder="Ej: Adultos Mayores"
+            class="form-input flex-1 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-sm px-4 py-2.5 text-gray-800 dark:text-gray-100 transition-all"/>
+          <button onclick="addEdad()"
+            class="shrink-0 flex items-center gap-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-xl font-bold text-sm shadow-sm transition-all">
+            <span class="material-icons text-[18px]">add</span>
+            Agregar
+          </button>
+        </div>
+        <div id="edadList" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          <div class="skeleton col-span-full h-8 rounded-xl"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
 </main>
 
 <script>
+  // ────────────────────────────────────────────────────────────────────────────
+  // CATEGORY MANAGEMENT
+  // ────────────────────────────────────────────────────────────────────────────
+  const DEFAULT_CATEGORIES = [
+    { emoji: '🎵', name: 'Música',     order: 1 },
+    { emoji: '⚽', name: 'Deportes',   order: 2 },
+    { emoji: '🎨', name: 'Arte',       order: 3 },
+    { emoji: '🔧', name: 'Oficios',    order: 4 },
+    { emoji: '💃', name: 'Danza',      order: 5 },
+    { emoji: '🎭', name: 'Teatro',     order: 6 },
+    { emoji: '💻', name: 'Tecnología', order: 7 },
+  ];
+
+  function renderCategorySelect(cats, currentValue) {
+    const sel = document.getElementById('w_category');
+    const prev = currentValue || sel.value;
+    sel.innerHTML = cats.length
+      ? cats.map(c => `<option value="${c.name}">${c.emoji} ${c.name}</option>`).join('')
+      : '<option value="" disabled>No hay categorías. Agregá una.</option>';
+    if (prev) sel.value = prev;
+  }
+
+  function renderCategoryList(cats) {
+    const list = document.getElementById('categoryList');
+    if (!cats.length) {
+      list.innerHTML = '<p class="col-span-full text-center text-sm text-gray-400 py-4">No hay categorías. Agregá una arriba.</p>';
+      return;
+    }
+    list.innerHTML = cats.map(c => `
+      <div class="flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700">
+        <span class="text-sm font-semibold text-gray-800 dark:text-white">${c.emoji} ${c.name}</span>
+        <button onclick="deleteCategory('${c.id}', '${c.name}')"
+          class="p-1 rounded-full text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors shrink-0"
+          title="Eliminar categoría">
+          <span class="material-icons text-[17px]">delete</span>
+        </button>
+      </div>
+    `).join('');
+  }
+
+  async function addCategory() {
+    const emoji = document.getElementById('cat_emoji').value.trim() || '📌';
+    const name  = document.getElementById('cat_name').value.trim();
+    if (!name) { showToast('Ingresá un nombre para la categoría', 'error'); return; }
+    try {
+      await window.addDoc(window.collection(window.db, 'categories'), {
+        emoji, name, order: Date.now()
+      });
+      document.getElementById('cat_emoji').value = '';
+      document.getElementById('cat_name').value  = '';
+      showToast(`✅ Categoría "${name}" agregada`, 'success');
+    } catch (e) {
+      showToast('Error: ' + e.message, 'error');
+    }
+  }
+
+  window.deleteCategory = async (id, name) => {
+    if (!confirm(`¿Eliminar la categoría "${name}"? Los talleres que la usen mantendrán su valor.`)) return;
+    try {
+      await window.deleteDoc(window.doc(window.db, 'categories', id));
+      showToast(`Categoría "${name}" eliminada`, 'success');
+    } catch (e) {
+      showToast('Error: ' + e.message, 'error');
+    }
+  };
+
+  async function initCategories() {
+    // Seed defaults if collection is empty
+    const snap = await window.getDocs(window.collection(window.db, 'categories'));
+    if (snap.empty) {
+      for (const cat of DEFAULT_CATEGORIES) {
+        await window.addDoc(window.collection(window.db, 'categories'), cat);
+      }
+    }
+    // Live listener
+    window.onSnapshot(window.collection(window.db, 'categories'), (snapshot) => {
+      const cats = snapshot.docs
+        .map(d => ({ id: d.id, ...d.data() }))
+        .sort((a, b) => (a.order || 0) - (b.order || 0));
+      renderCategorySelect(cats);
+      renderCategoryList(cats);
+    });
+  }
+
+  // ────────────────────────────────────────────────────────────────────────────
+  // BARRIOS MANAGEMENT
+  // ────────────────────────────────────────────────────────────────────────────
+  const DEFAULT_BARRIOS = [
+    { name: 'Centro',     order: 1 },
+    { name: 'La Antena', order: 2 },
+    { name: 'Santa Cruz', order: 3 },
+  ];
+
+  function renderBarrioSelect(items) {
+    const sel = document.getElementById('w_barrio');
+    const prev = sel.value;
+    sel.innerHTML = items.length
+      ? items.map(b => `<option value="${b.name}">${b.name}</option>`).join('')
+      : '<option value="" disabled>No hay barrios. Agregá uno.</option>';
+    if (prev) sel.value = prev;
+  }
+
+  function renderBarrioList(items) {
+    const list = document.getElementById('barrioList');
+    if (!items.length) {
+      list.innerHTML = '<p class="col-span-full text-center text-sm text-gray-400 py-2">Sin barrios. Agregá uno arriba.</p>';
+      return;
+    }
+    list.innerHTML = items.map(b => `
+      <div class="flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700">
+        <span class="text-sm font-semibold text-gray-800 dark:text-white">${b.name}</span>
+        <button onclick="deleteBarrio('${b.id}', '${b.name}')"
+          class="p-1 rounded-full text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors shrink-0"
+          title="Eliminar barrio">
+          <span class="material-icons text-[17px]">delete</span>
+        </button>
+      </div>
+    `).join('');
+  }
+
+  async function addBarrio() {
+    const name = document.getElementById('barrio_name').value.trim();
+    if (!name) { showToast('Ingresá un nombre para el barrio', 'error'); return; }
+    try {
+      await window.addDoc(window.collection(window.db, 'barrios'), { name, order: Date.now() });
+      document.getElementById('barrio_name').value = '';
+      showToast(`✅ Barrio "${name}" agregado`, 'success');
+    } catch (e) { showToast('Error: ' + e.message, 'error'); }
+  }
+
+  window.deleteBarrio = async (id, name) => {
+    if (!confirm(`¿Eliminar el barrio "${name}"?`)) return;
+    try {
+      await window.deleteDoc(window.doc(window.db, 'barrios', id));
+      showToast(`Barrio "${name}" eliminado`, 'success');
+    } catch (e) { showToast('Error: ' + e.message, 'error'); }
+  };
+
+  async function initBarrios() {
+    const snap = await window.getDocs(window.collection(window.db, 'barrios'));
+    if (snap.empty) {
+      for (const b of DEFAULT_BARRIOS)
+        await window.addDoc(window.collection(window.db, 'barrios'), b);
+    }
+    window.onSnapshot(window.collection(window.db, 'barrios'), (snapshot) => {
+      const items = snapshot.docs
+        .map(d => ({ id: d.id, ...d.data() }))
+        .sort((a, b) => (a.order || 0) - (b.order || 0));
+      renderBarrioSelect(items);
+      renderBarrioList(items);
+    });
+  }
+
+  // ────────────────────────────────────────────────────────────────────────────
+  // EDADES MANAGEMENT
+  // ────────────────────────────────────────────────────────────────────────────
+  const DEFAULT_EDADES = [
+    { name: 'Niños',          order: 1 },
+    { name: 'Adolescentes',   order: 2 },
+    { name: 'Adultos',        order: 3 },
+    { name: 'Mayores',        order: 4 },
+    { name: 'Todas las Edades', order: 5 },
+  ];
+
+  function renderEdadSelect(items) {
+    const sel = document.getElementById('w_age');
+    const prev = sel.value;
+    sel.innerHTML = items.length
+      ? items.map(e => `<option value="${e.name}">${e.name}</option>`).join('')
+      : '<option value="" disabled>No hay grupos. Agregá uno.</option>';
+    if (prev) sel.value = prev;
+  }
+
+  function renderEdadList(items) {
+    const list = document.getElementById('edadList');
+    if (!items.length) {
+      list.innerHTML = '<p class="col-span-full text-center text-sm text-gray-400 py-2">Sin grupos. Agregá uno arriba.</p>';
+      return;
+    }
+    list.innerHTML = items.map(e => `
+      <div class="flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700">
+        <span class="text-sm font-semibold text-gray-800 dark:text-white">${e.name}</span>
+        <button onclick="deleteEdad('${e.id}', '${e.name}')"
+          class="p-1 rounded-full text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors shrink-0"
+          title="Eliminar grupo">
+          <span class="material-icons text-[17px]">delete</span>
+        </button>
+      </div>
+    `).join('');
+  }
+
+  async function addEdad() {
+    const name = document.getElementById('edad_name').value.trim();
+    if (!name) { showToast('Ingresá un nombre para el grupo de edad', 'error'); return; }
+    try {
+      await window.addDoc(window.collection(window.db, 'edades'), { name, order: Date.now() });
+      document.getElementById('edad_name').value = '';
+      showToast(`✅ Grupo "${name}" agregado`, 'success');
+    } catch (e) { showToast('Error: ' + e.message, 'error'); }
+  }
+
+  window.deleteEdad = async (id, name) => {
+    if (!confirm(`¿Eliminar el grupo "${name}"?`)) return;
+    try {
+      await window.deleteDoc(window.doc(window.db, 'edades', id));
+      showToast(`Grupo "${name}" eliminado`, 'success');
+    } catch (e) { showToast('Error: ' + e.message, 'error'); }
+  };
+
+  async function initEdades() {
+    const snap = await window.getDocs(window.collection(window.db, 'edades'));
+    if (snap.empty) {
+      for (const e of DEFAULT_EDADES)
+        await window.addDoc(window.collection(window.db, 'edades'), e);
+    }
+    window.onSnapshot(window.collection(window.db, 'edades'), (snapshot) => {
+      const items = snapshot.docs
+        .map(d => ({ id: d.id, ...d.data() }))
+        .sort((a, b) => (a.order || 0) - (b.order || 0));
+      renderEdadSelect(items);
+      renderEdadList(items);
+    });
+  }
+
   // ────────────────────────────────────────────────────────────────────────────
   // TOAST SYSTEM
   // ────────────────────────────────────────────────────────────────────────────
@@ -728,6 +1038,11 @@
       const overlay   = document.getElementById('loadingOverlay');
       const emptyState = document.getElementById('emptyState');
 
+      // ── Categories / Barrios / Edades ────────────────────────────
+      initCategories();
+      initBarrios();
+      initEdades();
+
       // ── Real-time listener ──────────────────────────────────────
       window.onSnapshot(window.collection(window.db, "workshops"), (snapshot) => {
         tableBody.innerHTML = '';
@@ -773,6 +1088,11 @@
                   title="Ver detalle">
                   <span class="material-icons text-[18px]">open_in_new</span>
                 </a>
+                <button onclick="editWorkshop('${docSnap.id}', ${JSON.stringify(data).replace(/"/g,'&quot;')})"
+                  class="btn-delete p-2 rounded-full text-gray-400 hover:text-yellow-500 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 transition-colors"
+                  title="Editar taller">
+                  <span class="material-icons text-[18px]">edit</span>
+                </button>
                 <button onclick="deleteWorkshop('${docSnap.id}')"
                   class="btn-delete p-2 rounded-full text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                   title="Eliminar taller">
@@ -786,57 +1106,147 @@
       });
 
       // ── Form Submit ─────────────────────────────────────────────
+      let editingId = null; // null = new workshop, string = editing existing
+
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
         submitBtn.disabled = true;
-        submitBtnText.textContent = 'Guardando...';
-        submitBtn.querySelector('.material-icons').textContent = 'hourglass_empty';
+        submitBtnText.textContent = editingId ? 'Actualizando...' : 'Guardando...';
+        document.getElementById('submitBtnIcon').textContent = 'hourglass_empty';
         overlay.classList.add('active');
 
         try {
-          const dias     = getSelectedDays();
-          const horaIni  = document.getElementById('w_horaInicio').value;
-          const horaFin  = document.getElementById('w_horaFin').value;
-          const newDoc = {
-            title:       document.getElementById('w_title').value.trim(),
-            category:    document.getElementById('w_category').value,
-            barrio:      document.getElementById('w_barrio').value,
-            location:    document.getElementById('w_location').value.trim(),
-            dias:        dias,
-            horaInicio:  horaIni,
-            horaFin:     horaFin,
-            schedule:    buildScheduleStr(),
-            ageFilter:   document.getElementById('w_age').value,
-            ageText:     document.getElementById('w_ageText').value.trim(),
-            costo:       document.getElementById('w_costo').value,
-            profesor:    document.getElementById('w_profesor').value.trim(),
-            contacto:    document.getElementById('w_contacto').value.trim(),
-            description: document.getElementById('w_desc').value.trim(),
-            imageUrl:    document.getElementById('w_image').value.trim(),
-            status:      document.getElementById('w_status').value,
-            icon:        document.getElementById('w_icon').value.trim() || 'music_note',
-            bannerColor: document.getElementById('w_color').value,
-            createdAt:   new Date().toISOString()
+          const dias    = getSelectedDays();
+          const horaIni = document.getElementById('w_horaInicio').value;
+          const horaFin = document.getElementById('w_horaFin').value;
+          const payload = {
+            title:         document.getElementById('w_title').value.trim(),
+            category:      document.getElementById('w_category').value,
+            barrio:        document.getElementById('w_barrio').value,
+            location:      document.getElementById('w_location').value.trim(),
+            dias:          dias,
+            horaInicio:    horaIni,
+            horaFin:       horaFin,
+            schedule:      buildScheduleStr(),
+            ageFilter:     document.getElementById('w_age').value,
+            ageText:       document.getElementById('w_ageText').value.trim(),
+            costo:         document.getElementById('w_costo').value,
+            profesor:      document.getElementById('w_profesor').value.trim(),
+            contacto:      document.getElementById('w_contacto').value.trim(),
+            description:   document.getElementById('w_desc').value.trim(),
+            imageUrl:      document.getElementById('w_image').value.trim(),
+            inscripcionUrl:document.getElementById('w_inscripcionUrl').value.trim(),
+            status:        document.getElementById('w_status').value,
+            icon:          document.getElementById('w_icon').value.trim() || 'music_note',
+            bannerColor:   document.getElementById('w_color').value,
           };
 
-          await window.addDoc(window.collection(window.db, "workshops"), newDoc);
+          if (editingId) {
+            await window.updateDoc(window.doc(window.db, 'workshops', editingId), payload);
+            showToast('✅ Taller actualizado correctamente', 'success');
+          } else {
+            payload.createdAt = new Date().toISOString();
+            await window.addDoc(window.collection(window.db, 'workshops'), payload);
+            showToast('✅ Taller publicado correctamente', 'success');
+          }
 
-          form.reset();
-          document.getElementById('w_color').value = '#3b82f6';
-          document.getElementById('w_icon').value  = 'music_note';
-          updatePreview();
-          showToast('✅ Taller publicado correctamente', 'success');
+          cancelEdit(); // resets form and edit state
         } catch (error) {
-          console.error("Error:", error);
+          console.error('Error:', error);
           showToast('Error al guardar: ' + error.message, 'error');
         } finally {
           submitBtn.disabled = false;
-          submitBtnText.textContent = 'Guardar Taller';
-          submitBtn.querySelector('.material-icons').textContent = 'save';
+          submitBtnText.textContent = editingId ? 'Guardar Cambios' : 'Guardar Taller';
+          document.getElementById('submitBtnIcon').textContent = editingId ? 'edit' : 'save';
           overlay.classList.remove('active');
         }
       });
+
+      // ── Edit helpers ──────────────────────────────────────────────
+      window.editWorkshop = (id, data) => {
+        editingId = id;
+
+        // Populate text/select fields
+        document.getElementById('w_title').value        = data.title || '';
+        document.getElementById('w_category').value     = data.category || 'Música';
+        document.getElementById('w_barrio').value       = data.barrio || 'Centro';
+        document.getElementById('w_location').value     = data.location || '';
+        document.getElementById('w_horaInicio').value   = data.horaInicio || '';
+        document.getElementById('w_horaFin').value      = data.horaFin || '';
+        document.getElementById('w_age').value          = data.ageFilter || 'Adultos';
+        document.getElementById('w_ageText').value      = data.ageText || '';
+        document.getElementById('w_status').value       = data.status || 'Cupos Disponibles';
+        document.getElementById('w_profesor').value     = data.profesor || '';
+        document.getElementById('w_contacto').value     = data.contacto || '';
+        document.getElementById('w_desc').value         = data.description || '';
+        document.getElementById('w_image').value        = data.imageUrl || '';
+        document.getElementById('w_inscripcionUrl').value = data.inscripcionUrl || '';
+        document.getElementById('w_icon').value         = data.icon || 'music_note';
+        document.getElementById('w_color').value        = data.bannerColor || '#3b82f6';
+
+        // Dias checkboxes
+        document.querySelectorAll('.dia-check').forEach(cb => {
+          cb.checked = Array.isArray(data.dias) && data.dias.includes(cb.value);
+        });
+
+        // Costo toggle
+        const isArancelado = data.costo === 'arancelado';
+        document.getElementById('w_costo').value = isArancelado ? 'arancelado' : 'gratuito';
+        const toggleBtn  = document.getElementById('w_costo_toggle');
+        const toggleKnob = document.getElementById('w_costo_knob');
+        const toggleLbl  = document.getElementById('w_costo_label');
+        if (isArancelado) {
+          toggleBtn.classList.replace('bg-green-500','bg-gray-400');
+          toggleKnob.className = 'inline-block h-5 w-5 translate-x-1 transform rounded-full bg-white shadow transition-transform';
+          toggleLbl.textContent = 'Arancelado';
+          toggleLbl.className   = 'text-sm font-semibold text-gray-500';
+        } else {
+          toggleBtn.classList.replace('bg-gray-400','bg-green-500');
+          toggleKnob.className = 'inline-block h-5 w-5 translate-x-8 transform rounded-full bg-white shadow transition-transform';
+          toggleLbl.textContent = 'Gratuito';
+          toggleLbl.className   = 'text-sm font-semibold text-green-600';
+        }
+
+        // Update form header UI
+        document.getElementById('formHeaderIcon').innerHTML = '<span class="material-icons">edit</span>';
+        document.getElementById('formHeaderIcon').className = 'w-9 h-9 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center text-yellow-600';
+        document.getElementById('formHeaderTitle').textContent = 'Editando Taller';
+        document.getElementById('formHeaderSub').textContent   = 'Modificá los campos y guardá los cambios';
+        document.getElementById('cancelEditBtn').classList.remove('hidden');
+        document.getElementById('cancelEditBtn').classList.add('flex');
+        document.getElementById('submitBtnIcon').textContent   = 'edit';
+        document.getElementById('submitBtnText').textContent   = 'Guardar Cambios';
+
+        updatePreview();
+
+        // Scroll to form
+        document.getElementById('addWorkshopForm').closest('section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      };
+
+      window.cancelEdit = () => {
+        editingId = null;
+        document.getElementById('addWorkshopForm').reset();
+        document.getElementById('w_color').value = '#3b82f6';
+        document.getElementById('w_icon').value  = 'music_note';
+        // Reset costo toggle
+        document.getElementById('w_costo').value = 'gratuito';
+        document.getElementById('w_costo_toggle').classList.remove('bg-gray-400');
+        document.getElementById('w_costo_toggle').classList.add('bg-green-500');
+        document.getElementById('w_costo_knob').className = 'inline-block h-5 w-5 translate-x-8 transform rounded-full bg-white shadow transition-transform';
+        document.getElementById('w_costo_label').textContent = 'Gratuito';
+        document.getElementById('w_costo_label').className   = 'text-sm font-semibold text-green-600';
+        // Reset header UI
+        document.getElementById('formHeaderIcon').innerHTML  = '<span class="material-icons">add_circle</span>';
+        document.getElementById('formHeaderIcon').className  = 'w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary';
+        document.getElementById('formHeaderTitle').textContent = 'Nuevo Taller';
+        document.getElementById('formHeaderSub').textContent   = 'Completá los campos para publicar un taller';
+        document.getElementById('cancelEditBtn').classList.add('hidden');
+        document.getElementById('cancelEditBtn').classList.remove('flex');
+        document.getElementById('submitBtnIcon').textContent = 'save';
+        document.getElementById('submitBtnText').textContent = 'Guardar Taller';
+        updatePreview();
+      };
     }
 
     // ── Delete ────────────────────────────────────────────────────

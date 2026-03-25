@@ -156,6 +156,86 @@
   .tag-chip:nth-child(1) { animation: chipPop 0.4s 0.3s cubic-bezier(0.34,1.56,0.64,1) both; }
   .tag-chip:nth-child(2) { animation: chipPop 0.4s 0.42s cubic-bezier(0.34,1.56,0.64,1) both; }
   .tag-chip:nth-child(3) { animation: chipPop 0.4s 0.54s cubic-bezier(0.34,1.56,0.64,1) both; }
+
+  /* ===== DESKTOP LAYOUT (≥1024px) ===== */
+  @media (min-width: 1024px) {
+    body {
+      min-height: 100dvh;
+    }
+
+    header {
+      max-width: 100%;
+    }
+
+    /* Limit header content width */
+    .header-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    /* Desktop main: two-column layout */
+    #workshopDetail {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      align-items: flex-start;
+      gap: 2rem;
+      padding: 2rem;
+      min-height: calc(100dvh - 64px);
+    }
+
+    /* Left panel: hero banner + CTA */
+    .desktop-left-panel {
+      width: 380px;
+      min-width: 380px;
+      position: sticky;
+      top: 84px;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    /* Override hero height on desktop */
+    .desktop-left-panel .hero-banner {
+      height: 320px !important;
+      border-radius: 1.25rem;
+      overflow: hidden;
+    }
+
+    /* Right panel: details */
+    .desktop-right-panel {
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* Remove inner padding from sections since #workshopDetail handles it */
+    .desktop-right-panel .px-5 {
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
+    .desktop-right-panel .mx-5 {
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+    }
+
+    /* Grid for info cards on desktop */
+    .desktop-right-panel .grid-cols-1 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* Show left CTA, hide mobile CTA */
+    .desktop-cta-left { display: block !important; }
+    .desktop-cta-mobile-only { display: none !important; }
+  }
+
+  /* On mobile, left panel wraps hero and CTA left (hidden on mobile) */
+  .desktop-cta-left { display: none; }
+  /* Mobile CTA shows normally */
+  .desktop-cta-mobile-only { display: block; }
 </style>
 </head>
 <body class="bg-background-light dark:bg-background-dark text-text-main-light dark:text-text-main-dark font-display antialiased">
@@ -235,130 +315,148 @@
       }
 
       container.innerHTML = `
-        <!-- Hero image -->
-        <div class="w-full h-56 relative flex items-center justify-center overflow-hidden" style="${bannerStyle}">
-          ${overlayHTML}
-          <span class="material-icons text-white/${data.imageUrl?'80':'30'} text-8xl relative z-10 ${data.imageUrl?'drop-shadow-lg':''}">${data.icon || 'music_note'}</span>
-          <span class="absolute bottom-4 right-4 bg-white dark:bg-card-dark text-primary font-bold text-xs px-3 py-1 rounded-full shadow-md border border-gray-100 dark:border-gray-700 uppercase tracking-wider z-10">${data.category}</span>
-        </div>
-
-        <!-- Title & tags -->
-        <div class="px-5 pt-5 pb-4 anim-title">
-          <h1 class="text-2xl font-bold text-gray-900 dark:text-white leading-tight mb-3">${data.title}</h1>
-          <div class="flex flex-wrap gap-2 mb-4">
-            <span class="tag-chip inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-semibold">
-              <span class="material-icons text-[16px]">${data.icon || 'music_note'}</span> ${data.category}
-            </span>
-            <span class="tag-chip inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-sm font-medium">
-              <span class="material-icons text-[16px]">location_on</span> ${data.barrio}
-            </span>
-            <span class="tag-chip inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-sm font-medium">
-              <span class="material-icons text-[16px]">people</span> ${data.ageText}
-            </span>
+        <!-- Desktop wrapper: left panel (hero + CTA) | right panel (details) -->
+        <div class="desktop-left-panel">
+          <!-- Hero image -->
+          <div class="hero-banner w-full h-56 relative flex items-center justify-center overflow-hidden" style="${bannerStyle}">
+            ${overlayHTML}
+            <span class="material-icons text-white/${data.imageUrl?'80':'30'} text-8xl relative z-10 ${data.imageUrl?'drop-shadow-lg':''}">${data.icon || 'music_note'}</span>
+            <span class="absolute bottom-4 right-4 bg-white dark:bg-card-dark text-primary font-bold text-xs px-3 py-1 rounded-full shadow-md border border-gray-100 dark:border-gray-700 uppercase tracking-wider z-10">${data.category}</span>
           </div>
-          <p class="text-sm text-text-muted-light dark:text-text-muted-dark leading-relaxed">
-            ${data.description}
-          </p>
+
+          <!-- CTA (shown in left panel on desktop, hidden in right panel) -->
+          ${data.inscripcionUrl ? `
+          <div class="px-5 pt-2 pb-2 desktop-cta-left">
+            <a href="${data.inscripcionUrl}" target="_blank" rel="noopener noreferrer"
+              class="cta-btn w-full flex items-center justify-center gap-2 bg-primary text-white py-3.5 px-6 rounded-2xl font-bold text-base no-underline">
+              <span>Inscribirme Ahora</span>
+              <span class="material-icons">arrow_forward</span>
+            </a>
+          </div>` : ''}
         </div>
 
-        <div class="border-t border-gray-100 dark:border-gray-700 mx-5"></div>
-
-        <!-- Información clave -->
-        <div class="px-5 py-5 anim-section">
-          <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-3">Información Clave</h3>
-          <div class="grid grid-cols-1 gap-3">
-
-            <!-- Días -->
-            ${(Array.isArray(data.dias) && data.dias.length) ? `
-            <div class="info-card card-reveal flex items-center gap-4 p-4 rounded-2xl bg-white dark:bg-card-dark shadow-sm border border-gray-100 dark:border-gray-700">
-              <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
-                <span class="material-icons">calendar_today</span>
-              </div>
-              <div>
-                <p class="text-[10px] font-semibold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-0.5">Días</p>
-                <p class="text-sm font-semibold text-gray-900 dark:text-white">${data.dias.join(' · ')}</p>
-              </div>
-            </div>` : ''}
-
-            <!-- Horario -->
-            <div class="info-card card-reveal flex items-center gap-4 p-4 rounded-2xl bg-white dark:bg-card-dark shadow-sm border border-gray-100 dark:border-gray-700">
-              <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
-                <span class="material-icons">schedule</span>
-              </div>
-              <div>
-                <p class="text-[10px] font-semibold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-0.5">Horario</p>
-                <p class="text-sm font-semibold text-gray-900 dark:text-white">
-                  ${data.horaInicio ? (data.horaFin ? data.horaInicio + ' – ' + data.horaFin + ' hs' : data.horaInicio + ' hs') : data.schedule}
-                </p>
-              </div>
+        <!-- Right panel: title, tags, info cards -->
+        <div class="desktop-right-panel">
+          <!-- Title & tags -->
+          <div class="px-5 pt-5 pb-4 anim-title">
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white leading-tight mb-3">${data.title}</h1>
+            <div class="flex flex-wrap gap-2 mb-4">
+              <span class="tag-chip inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-semibold">
+                <span class="material-icons text-[16px]">${data.icon || 'music_note'}</span> ${data.category}
+              </span>
+              <span class="tag-chip inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-sm font-medium">
+                <span class="material-icons text-[16px]">location_on</span> ${data.barrio}
+              </span>
+              <span class="tag-chip inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-sm font-medium">
+                <span class="material-icons text-[16px]">people</span> ${data.ageText}
+              </span>
             </div>
-
-            <!-- Costo -->
-            <div class="info-card card-reveal flex items-center gap-4 p-4 rounded-2xl ${data.costo === 'arancelado' ? 'bg-orange-50 dark:bg-orange-900/10 border border-orange-200 dark:border-orange-800' : 'bg-green-50 dark:bg-green-900/10 border border-green-200 dark:border-green-800'} shadow-sm">
-              <div class="w-10 h-10 rounded-full ${data.costo === 'arancelado' ? 'bg-orange-100 text-orange-600' : 'bg-green-100 text-green-600'} flex items-center justify-center shrink-0">
-                <span class="material-icons">sell</span>
-              </div>
-              <div>
-                <p class="text-[10px] font-semibold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-0.5">Costo</p>
-                <p class="text-sm font-bold ${data.costo === 'arancelado' ? 'text-orange-600' : 'text-green-600'}">${data.costo === 'arancelado' ? '💳 Arancelado' : '✅ Gratuito'}</p>
-              </div>
-            </div>
-
-            <!-- Lugar -->
-            <div class="info-card card-reveal flex items-center gap-4 p-4 rounded-2xl bg-white dark:bg-card-dark shadow-sm border border-gray-100 dark:border-gray-700">
-              <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
-                <span class="material-icons">map</span>
-              </div>
-              <div>
-                <p class="text-[10px] font-semibold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-0.5">Lugar</p>
-                <p class="text-sm font-semibold text-gray-900 dark:text-white">${data.location}</p>
-              </div>
-            </div>
-
-            <!-- Profesor -->
-            ${data.profesor ? `
-            <div class="info-card card-reveal flex items-center gap-4 p-4 rounded-2xl bg-white dark:bg-card-dark shadow-sm border border-gray-100 dark:border-gray-700">
-              <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
-                <span class="material-icons">person</span>
-              </div>
-              <div>
-                <p class="text-[10px] font-semibold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-0.5">Profesor / Docente</p>
-                <p class="text-sm font-semibold text-gray-900 dark:text-white">${data.profesor}</p>
-              </div>
-            </div>` : ''}
-
-            <!-- Contacto -->
-            ${data.contacto ? `
-            <div class="info-card card-reveal flex items-center gap-4 p-4 rounded-2xl bg-white dark:bg-card-dark shadow-sm border border-gray-100 dark:border-gray-700">
-              <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
-                <span class="material-icons">phone</span>
-              </div>
-              <div>
-                <p class="text-[10px] font-semibold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-0.5">Contacto</p>
-                <p class="text-sm font-semibold text-gray-900 dark:text-white">${data.contacto}</p>
-              </div>
-            </div>` : ''}
-
-            <!-- Estado -->
-            <div class="info-card card-reveal flex items-center gap-4 p-4 rounded-2xl ${statusContainerBg} border ${statusBorder} shadow-sm">
-              <div class="w-10 h-10 rounded-full ${statusBg} flex items-center justify-center ${statusColor} shrink-0">
-                <span class="material-icons">info</span>
-              </div>
-              <div>
-                <p class="text-[10px] font-semibold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-0.5">Estado</p>
-                <p class="text-sm font-bold ${statusColor}">${data.status}</p>
-              </div>
-            </div>
-
+            <p class="text-sm text-text-muted-light dark:text-text-muted-dark leading-relaxed">
+              ${data.description}
+            </p>
           </div>
-        </div>
 
-        <!-- CTA -->
-        <div class="px-5 pt-2 pb-6">
-          <button class="cta-btn w-full flex items-center justify-center gap-2 bg-primary text-white py-3.5 px-6 rounded-2xl font-bold text-base">
-            <span>Inscribirme Ahora</span>
-            <span class="material-icons">arrow_forward</span>
-          </button>
+          <div class="border-t border-gray-100 dark:border-gray-700 mx-5"></div>
+
+          <!-- Información clave -->
+          <div class="px-5 py-5 anim-section">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-3">Información Clave</h3>
+            <div class="grid grid-cols-1 gap-3">
+
+              <!-- Días -->
+              ${(Array.isArray(data.dias) && data.dias.length) ? `
+              <div class="info-card card-reveal flex items-center gap-4 p-4 rounded-2xl bg-white dark:bg-card-dark shadow-sm border border-gray-100 dark:border-gray-700">
+                <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                  <span class="material-icons">calendar_today</span>
+                </div>
+                <div>
+                  <p class="text-[10px] font-semibold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-0.5">Días</p>
+                  <p class="text-sm font-semibold text-gray-900 dark:text-white">${data.dias.join(' · ')}</p>
+                </div>
+              </div>` : ''}
+
+              <!-- Horario -->
+              <div class="info-card card-reveal flex items-center gap-4 p-4 rounded-2xl bg-white dark:bg-card-dark shadow-sm border border-gray-100 dark:border-gray-700">
+                <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                  <span class="material-icons">schedule</span>
+                </div>
+                <div>
+                  <p class="text-[10px] font-semibold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-0.5">Horario</p>
+                  <p class="text-sm font-semibold text-gray-900 dark:text-white">
+                    ${data.horaInicio ? (data.horaFin ? data.horaInicio + ' – ' + data.horaFin + ' hs' : data.horaInicio + ' hs') : data.schedule}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Costo -->
+              <div class="info-card card-reveal flex items-center gap-4 p-4 rounded-2xl ${data.costo === 'arancelado' ? 'bg-orange-50 dark:bg-orange-900/10 border border-orange-200 dark:border-orange-800' : 'bg-green-50 dark:bg-green-900/10 border border-green-200 dark:border-green-800'} shadow-sm">
+                <div class="w-10 h-10 rounded-full ${data.costo === 'arancelado' ? 'bg-orange-100 text-orange-600' : 'bg-green-100 text-green-600'} flex items-center justify-center shrink-0">
+                  <span class="material-icons">sell</span>
+                </div>
+                <div>
+                  <p class="text-[10px] font-semibold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-0.5">Costo</p>
+                  <p class="text-sm font-bold ${data.costo === 'arancelado' ? 'text-orange-600' : 'text-green-600'}">${data.costo === 'arancelado' ? '💳 Arancelado' : '✅ Gratuito'}</p>
+                </div>
+              </div>
+
+              <!-- Lugar -->
+              <div class="info-card card-reveal flex items-center gap-4 p-4 rounded-2xl bg-white dark:bg-card-dark shadow-sm border border-gray-100 dark:border-gray-700">
+                <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                  <span class="material-icons">map</span>
+                </div>
+                <div>
+                  <p class="text-[10px] font-semibold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-0.5">Lugar</p>
+                  <p class="text-sm font-semibold text-gray-900 dark:text-white">${data.location}</p>
+                </div>
+              </div>
+
+              <!-- Profesor -->
+              ${data.profesor ? `
+              <div class="info-card card-reveal flex items-center gap-4 p-4 rounded-2xl bg-white dark:bg-card-dark shadow-sm border border-gray-100 dark:border-gray-700">
+                <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                  <span class="material-icons">person</span>
+                </div>
+                <div>
+                  <p class="text-[10px] font-semibold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-0.5">Profesor / Docente</p>
+                  <p class="text-sm font-semibold text-gray-900 dark:text-white">${data.profesor}</p>
+                </div>
+              </div>` : ''}
+
+              <!-- Contacto -->
+              ${data.contacto ? `
+              <div class="info-card card-reveal flex items-center gap-4 p-4 rounded-2xl bg-white dark:bg-card-dark shadow-sm border border-gray-100 dark:border-gray-700">
+                <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                  <span class="material-icons">phone</span>
+                </div>
+                <div>
+                  <p class="text-[10px] font-semibold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-0.5">Contacto</p>
+                  <p class="text-sm font-semibold text-gray-900 dark:text-white">${data.contacto}</p>
+                </div>
+              </div>` : ''}
+
+              <!-- Estado -->
+              <div class="info-card card-reveal flex items-center gap-4 p-4 rounded-2xl ${statusContainerBg} border ${statusBorder} shadow-sm">
+                <div class="w-10 h-10 rounded-full ${statusBg} flex items-center justify-center ${statusColor} shrink-0">
+                  <span class="material-icons">info</span>
+                </div>
+                <div>
+                  <p class="text-[10px] font-semibold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-0.5">Estado</p>
+                  <p class="text-sm font-bold ${statusColor}">${data.status}</p>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- CTA (mobile only - shown below cards on mobile) -->
+          ${data.inscripcionUrl ? `
+          <div class="px-5 pt-2 pb-6 desktop-cta-mobile-only">
+            <a href="${data.inscripcionUrl}" target="_blank" rel="noopener noreferrer"
+              class="cta-btn w-full flex items-center justify-center gap-2 bg-primary text-white py-3.5 px-6 rounded-2xl font-bold text-base no-underline">
+              <span>Inscribirme Ahora</span>
+              <span class="material-icons">arrow_forward</span>
+            </a>
+          </div>` : ''}
         </div>
       `;
       
