@@ -242,7 +242,7 @@
 
 <!-- Header -->
 <header class="sticky top-0 z-50 bg-white dark:bg-card-dark shadow-sm px-4 py-3 flex items-center gap-3 transition-colors duration-200">
-  <a href="index.html" class="w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+  <a href="index" class="w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
     <span class="material-icons text-xl">arrow_back</span>
   </a>
   <h2 class="text-base font-bold text-gray-800 dark:text-white">Detalle del Taller</h2>
@@ -274,7 +274,7 @@
     const container = document.getElementById('workshopDetail');
 
     if (!workshopId) {
-      container.innerHTML = '<div class="p-8 text-center text-gray-500">Taller no encontrado. <a href="index.html" class="text-primary hover:underline">Volver</a></div>';
+      container.innerHTML = '<div class="p-8 text-center text-gray-500">Taller no encontrado. <a href="index" class="text-primary hover:underline">Volver</a></div>';
       return;
     }
 
@@ -283,7 +283,7 @@
       const docSnap = await window.getDoc(docRef);
 
       if (!docSnap.exists()) {
-        container.innerHTML = '<div class="p-8 text-center text-gray-500">El taller no existe o fue eliminado. <a href="index.html" class="text-primary hover:underline">Volver</a></div>';
+        container.innerHTML = '<div class="p-8 text-center text-gray-500">El taller no existe o fue eliminado. <a href="index" class="text-primary hover:underline">Volver</a></div>';
         return;
       }
 

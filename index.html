@@ -637,7 +637,7 @@
       ? `<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>`
       : '';
     return `
-      <a href="descripcion.html?id=${doc.id}" class="block no-underline">
+      <a href="descripcion?id=${doc.id}" class="block no-underline">
       <article class="bg-white dark:bg-card-dark rounded-2xl shadow-${isFirst ? 'md' : 'sm border border-gray-100 dark:border-gray-800'} overflow-hidden flex flex-col transition-transform active:scale-[0.98] cursor-pointer">
         <div class="${bannerClass} relative flex items-center justify-center overflow-hidden" style="${bannerStyle}">
           ${badgeHTML}

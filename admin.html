@@ -30,7 +30,7 @@
   // ── Auth guard: redirect to login if not authenticated ──
   onAuthStateChanged(auth, (user) => {
     if (!user) {
-      window.location.replace('login.html');
+      window.location.replace('login');
     } else {
       // Hide auth loading screen and show the panel
       if (window._showAdminPanel) {
@@ -245,7 +245,7 @@
 <header class="sticky top-0 z-50 bg-white dark:bg-card-dark shadow-sm px-4 py-3 flex justify-between items-center transition-colors duration-200">
   <img src="valleviejo.svg" alt="Valle Viejo" class="h-8"/>
   <div class="flex items-center gap-3">
-    <a href="index.html" class="flex items-center gap-1 text-sm font-semibold text-primary hover:text-blue-600 transition-colors">
+    <a href="index" class="flex items-center gap-1 text-sm font-semibold text-primary hover:text-blue-600 transition-colors">
       <span class="material-icons text-[18px]">visibility</span>
       Ver Sitio
     </a>
@@ -1117,7 +1117,7 @@
             <td class="px-5 py-4 hidden md:table-cell">${statusBadge(data.status)}</td>
             <td class="px-5 py-4 text-right">
               <div class="flex items-center justify-end gap-1">
-                <a href="descripcion.html?id=${docSnap.id}" target="_blank"
+                <a href="descripcion?id=${docSnap.id}" target="_blank"
                   class="btn-delete p-2 rounded-full text-gray-400 hover:text-primary hover:bg-primary/10 transition-colors"
                   title="Ver detalle">
                   <span class="material-icons text-[18px]">open_in_new</span>
@@ -1319,7 +1319,7 @@
     if (!confirm('¿Cerrar sesión?')) return;
     try {
       await window._signOut(window._auth);
-      window.location.replace('login.html');
+      window.location.replace('login');
     } catch (e) {
       alert('Error al cerrar sesión: ' + e.message);
     }
