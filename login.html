@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Iniciar Sesión – Admin Talleres Municipales</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+
+<!-- Firebase SDKs -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCxBeZMj2YQc9GL2BAC6-kqhJi6KeLCbng",
+    authDomain: "talleres-muni.firebaseapp.com",
+    projectId: "talleres-muni",
+    storageBucket: "talleres-muni.firebasestorage.app",
+    messagingSenderId: "354217649134",
+    appId: "1:354217649134:web:cb1f1084dc107b1dd224ff"
+  };
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  // Si ya está autenticado, redirigir directo al panel
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      window.location.replace('admin.html');
+    } else {
+      // Mostrar el formulario (estaba oculto hasta confirmar estado)
+      document.getElementById('loginCard').style.opacity = '1';
+    }
+  });
+
+  window._firebaseAuth = auth;
+  window._signIn = signInWithEmailAndPassword;
+</script>
+
+<script>
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          primary: "#00a8e8",
+          secondary: "#ffd100",
+          "background-light": "#f4f7fb",
+          "card-light": "#ffffff",
+          "text-main-light": "#2d3748",
+          "text-muted-light": "#718096",
+        },
+        fontFamily: { display: ["Montserrat", "sans-serif"] },
+        borderRadius: { DEFAULT: "1rem" },
+      },
+    },
+  };
+</script>
+
+<style>
+  /* Header animation */
+  @keyframes headerSlideDown {
+    from { transform: translateY(-100%); opacity: 0; }
+    to   { transform: translateY(0);     opacity: 1; }
+  }
+  header { animation: headerSlideDown 0.5s cubic-bezier(0.22,1,0.36,1) both; }
+
+  /* Card animation */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(28px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  #loginCard { animation: fadeUp 0.55s 0.1s cubic-bezier(0.22,1,0.36,1) both; }
+
+  /* Input focus glow */
+  .form-input:focus {
+    box-shadow: 0 0 0 3px rgba(0,168,232,0.2);
+    border-color: #00a8e8 !important;
+    outline: none;
+  }
+
+  /* Button pulse */
+  @keyframes ctaPulse {
+    0%, 100% { box-shadow: 0 4px 20px rgba(0,168,232,0.3), 0 0 0 0 rgba(0,168,232,0.2); }
+    50%       { box-shadow: 0 4px 20px rgba(0,168,232,0.3), 0 0 0 8px rgba(0,168,232,0); }
+  }
+  #loginBtn:not(:disabled) {
+    animation: ctaPulse 2.5s ease-in-out infinite;
+    transition: transform 0.18s cubic-bezier(0.34,1.56,0.64,1), filter 0.18s;
+  }
+  #loginBtn:not(:disabled):hover { transform: translateY(-2px); filter: brightness(1.07); }
+  #loginBtn:active { transform: scale(0.97) !important; }
+
+  /* Spinner */
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner {
+    border: 2.5px solid rgba(255,255,255,0.35);
+    border-top-color: #fff;
+    border-radius: 50%;
+    width: 18px; height: 18px;
+    animation: spin 0.75s linear infinite;
+    display: none;
+  }
+  #loginBtn.loading .spinner { display: inline-block; }
+  #loginBtn.loading .btn-icon,
+  #loginBtn.loading .btn-text { display: none; }
+
+  /* Error shake */
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60%  { transform: translateX(-6px); }
+    40%, 80%  { transform: translateX(6px); }
+  }
+  #errorBox.shake { animation: shake 0.4s ease; }
+
+  /* Logo icon pop */
+  @keyframes iconPop {
+    from { opacity: 0; transform: scale(0.5) rotate(-10deg); }
+    to   { opacity: 1; transform: scale(1) rotate(0deg); }
+  }
+  .logo-icon-wrap { animation: iconPop 0.65s 0.2s cubic-bezier(0.34,1.56,0.64,1) both; }
+</style>
+</head>
+
+<body class="bg-background-light font-display antialiased min-h-dvh flex flex-col">
+
+<!-- ══ HEADER ════════════════════════════════════════════════════ -->
+<header class="sticky top-0 z-50 bg-white shadow-sm px-4 py-3 flex justify-center items-center">
+  <img src="valleviejo.svg" alt="Valle Viejo" class="h-10"/>
+</header>
+
+<!-- ══ MAIN ══════════════════════════════════════════════════════ -->
+<main class="flex-1 flex items-center justify-center px-4 py-10">
+
+  <div id="loginCard" class="w-full max-w-md" style="opacity:0;">
+
+    <!-- Icon + Title -->
+    <div class="flex flex-col items-center gap-3 mb-8">
+      <div class="logo-icon-wrap w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center shadow-sm">
+        <span class="material-icons text-primary" style="font-size:34px;">admin_panel_settings</span>
+      </div>
+      <div class="text-center">
+        <h1 class="text-xl font-bold text-gray-900 leading-tight">Panel de Administración</h1>
+        <p class="text-xs text-text-muted-light font-semibold uppercase tracking-wider mt-1">Talleres Municipales · Valle Viejo</p>
+      </div>
+    </div>
+
+    <!-- Card -->
+    <section class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+
+      <!-- Card header strip -->
+      <div class="flex items-center gap-3 px-6 py-4 border-b border-gray-100 bg-gray-50">
+        <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+          <span class="material-icons text-[18px]">lock</span>
+        </div>
+        <div>
+          <p class="text-sm font-bold text-gray-800">Iniciar Sesión</p>
+          <p class="text-[0.68rem] text-text-muted-light">Ingresá con tu correo y contraseña</p>
+        </div>
+      </div>
+
+      <!-- Form -->
+      <form id="loginForm" class="p-6 space-y-4" onsubmit="handleLogin(event)">
+
+        <!-- Email -->
+        <div>
+          <label for="email" class="block text-[0.7rem] font-bold text-text-muted-light uppercase tracking-wider mb-1.5">
+            Correo Electrónico
+          </label>
+          <div class="relative">
+            <span class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[18px] pointer-events-none">email</span>
+            <input
+              type="email" id="email" required autocomplete="email"
+              placeholder="correo@ejemplo.com"
+              class="form-input w-full rounded-xl border border-gray-200 bg-gray-50 text-sm pl-10 pr-4 py-2.5 text-gray-800 transition-all"
+            />
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div>
+          <label for="password" class="block text-[0.7rem] font-bold text-text-muted-light uppercase tracking-wider mb-1.5">
+            Contraseña
+          </label>
+          <div class="relative">
+            <span class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[18px] pointer-events-none">lock</span>
+            <input
+              type="password" id="password" required autocomplete="current-password"
+              placeholder="Tu contraseña"
+              class="form-input w-full rounded-xl border border-gray-200 bg-gray-50 text-sm pl-10 pr-11 py-2.5 text-gray-800 transition-all"
+            />
+            <button type="button" onclick="togglePassword()"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-primary transition-colors focus:outline-none"
+              title="Mostrar/ocultar contraseña">
+              <span class="material-icons text-[20px]" id="eyeIcon">visibility</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Error box -->
+        <div id="errorBox" class="hidden items-center gap-2 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+          <span class="material-icons text-red-500 text-[18px] shrink-0">error_outline</span>
+          <p id="errorText" class="text-sm font-semibold text-red-600"></p>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" id="loginBtn"
+          class="w-full bg-primary hover:bg-[#0090c8] text-white rounded-xl font-bold flex items-center justify-center gap-2 px-6 py-3 shadow-md transition-all mt-2">
+          <span class="material-icons text-[20px] btn-icon">login</span>
+          <span class="btn-text">Ingresar al Panel</span>
+          <span class="spinner"></span>
+        </button>
+
+      </form>
+    </section>
+
+    <!-- Footer -->
+    <p class="text-center text-[0.68rem] text-gray-400 mt-5 flex items-center justify-center gap-1 font-medium">
+      <span class="material-icons text-[14px]">shield</span>
+      Acceso protegido con Firebase Authentication
+    </p>
+
+  </div>
+</main>
+
+<script>
+  function togglePassword() {
+    const input = document.getElementById('password');
+    const icon  = document.getElementById('eyeIcon');
+    if (input.type === 'password') {
+      input.type = 'text';
+      icon.textContent = 'visibility_off';
+    } else {
+      input.type = 'password';
+      icon.textContent = 'visibility';
+    }
+  }
+
+  function showError(msg) {
+    const box  = document.getElementById('errorBox');
+    const text = document.getElementById('errorText');
+    text.textContent = msg;
+    box.classList.remove('hidden');
+    box.classList.add('flex');
+    // retrigger shake
+    box.classList.remove('shake');
+    void box.offsetWidth;
+    box.classList.add('shake');
+  }
+
+  function hideError() {
+    const box = document.getElementById('errorBox');
+    box.classList.add('hidden');
+    box.classList.remove('flex', 'shake');
+  }
+
+  async function handleLogin(e) {
+    e.preventDefault();
+    hideError();
+
+    const email    = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const btn      = document.getElementById('loginBtn');
+
+    btn.disabled = true;
+    btn.classList.add('loading');
+
+    try {
+      await window._signIn(window._firebaseAuth, email, password);
+      // onAuthStateChanged redirects to admin.html
+    } catch (err) {
+      btn.disabled = false;
+      btn.classList.remove('loading');
+
+      const code = err.code || '';
+      if (code === 'auth/invalid-credential' || code === 'auth/wrong-password' || code === 'auth/invalid-login-credentials') {
+        showError('Correo o contraseña incorrectos.');
+      } else if (code === 'auth/user-not-found') {
+        showError('No existe ninguna cuenta con ese correo.');
+      } else if (code === 'auth/invalid-email') {
+        showError('El formato del correo no es válido.');
+      } else if (code === 'auth/too-many-requests') {
+        showError('Demasiados intentos. Esperá unos minutos e intentá de nuevo.');
+      } else {
+        showError('Error: ' + err.message);
+      }
+    }
+  }
+</script>
+</body>
+</html>

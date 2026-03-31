@@ -85,12 +85,11 @@
       height: 3rem;
     }
 
-    /* Page wrapper: sidebar + content */
+    /* Page wrapper: sidebar + content — full width so sidebar anchors to left edge */
     .desktop-page-wrapper {
       display: flex;
       gap: 0;
-      max-width: 1280px;
-      margin: 0 auto;
+      width: 100%;
       min-height: calc(100dvh - 64px);
     }
 
@@ -394,10 +393,19 @@
 <!-- ===== DESKTOP SIDEBAR ===== -->
 <aside class="desktop-sidebar bg-white dark:bg-card-dark">
   <p class="sidebar-section-title">Buscar</p>
-  <div class="relative mb-4">
+  <div class="relative">
     <span class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" style="font-size:18px">search</span>
     <input id="search-input-desktop" class="w-full pl-9 pr-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-primary focus:outline-none transition-shadow" placeholder="Buscar talleres..." type="text" oninput="applyFilters()"/>
   </div>
+  <!-- Clear button desktop — below search -->
+  <button onclick="clearFilters()" id="sidebar-clear-btn"
+    class="w-full flex items-center justify-center gap-1.5 mt-2 mb-3 px-3 py-1.5 rounded-xl text-xs font-bold
+           text-gray-400 border border-dashed border-gray-200 dark:border-gray-700
+           hover:border-red-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10
+           transition-all duration-200 opacity-0 pointer-events-none">
+    <span class="material-icons" style="font-size:15px">filter_alt_off</span>
+    Limpiar filtros
+  </button>
 
   <p class="sidebar-section-title">Barrio</p>
   <div class="sidebar-chips" id="sidebar-barrios">
@@ -433,6 +441,14 @@
 <span class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">search</span>
 <input id="search-input" class="w-full pl-10 pr-4 py-3 rounded-full border-none bg-white dark:bg-card-dark shadow-sm text-sm text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-primary focus:outline-none transition-shadow" placeholder="Buscar talleres..." type="text" oninput="applyFilters()"/>
 </div>
+<!-- Clear button mobile — below search -->
+<button onclick="clearFilters()" id="mobile-clear-btn"
+  class="hidden items-center gap-1 px-4 py-2 rounded-full bg-red-50 dark:bg-red-900/10
+         border border-red-200 dark:border-red-800 text-xs font-bold text-red-500
+         hover:bg-red-100 transition-colors">
+  <span class="material-icons" style="font-size:15px">filter_alt_off</span>
+  Limpiar filtros
+</button>
 </div>
 
 <!-- Filtros con dropdowns (mobile only) -->
@@ -711,6 +727,58 @@
     });
 
     renderWorkshops(filtered);
+    updateClearBtn(query, activeBarrio, activeCategory, activeEdad);
+  }
+
+  // ── Show/hide the "clear filters" button ─────────────────────
+  function updateClearBtn(query, barrio, category, edad) {
+    const hasFilters = !!(query || barrio || category || edad);
+    // Desktop sidebar button
+    const sidebarBtn = document.getElementById('sidebar-clear-btn');
+    if (sidebarBtn) {
+      sidebarBtn.style.opacity       = hasFilters ? '1' : '0';
+      sidebarBtn.style.pointerEvents = hasFilters ? 'auto' : 'none';
+    }
+    // Mobile button
+    const mobileBtn = document.getElementById('mobile-clear-btn');
+    if (mobileBtn) {
+      mobileBtn.classList.toggle('hidden',  !hasFilters);
+      mobileBtn.classList.toggle('flex',     hasFilters);
+    }
+  }
+
+  // ── Clear all filters and restore defaults ────────────────────
+  function clearFilters() {
+    // Clear search inputs
+    const si = document.getElementById('search-input');
+    const sd = document.getElementById('search-input-desktop');
+    if (si) si.value = '';
+    if (sd) sd.value = '';
+
+    // Reset desktop sidebar chips → activate the first chip in each group
+    ['sidebar-barrios', 'sidebar-categorias', 'sidebar-edades'].forEach(id => {
+      const group = document.getElementById(id);
+      if (!group) return;
+      group.querySelectorAll('.sidebar-chip').forEach((c, i) => {
+        c.classList.toggle('active', i === 0);
+      });
+    });
+
+    // Reset mobile dropdown chips → activate first chip in each popover
+    ['pop-barrios', 'pop-talleres', 'pop-edades'].forEach(id => {
+      const pop = document.getElementById(id);
+      if (!pop) return;
+      pop.querySelectorAll('.filter-chip').forEach((c, i) => {
+        c.classList.toggle('active', i === 0);
+      });
+    });
+
+    // Close any open mobile dropdown
+    allPopoverIds.forEach(id => document.getElementById(id)?.classList.remove('open'));
+    allBtnIds.forEach(id    => document.getElementById(id)?.classList.remove('filter-btn-active'));
+    allIconIds.forEach(id   => { const el = document.getElementById(id); if(el) el.textContent = 'arrow_drop_down'; });
+
+    applyFilters();
   }
 
   // ── Fetch workshops from Firebase ────────────────────────────
