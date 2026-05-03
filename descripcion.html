@@ -34,28 +34,53 @@
     theme: {
       extend: {
         colors: {
-          primary: "#00a8e8",
-          secondary: "#ffd100",
-          "background-light": "#f4f7fb",
-          "background-dark": "#1a202c",
-          "card-light": "#ffffff",
-          "card-dark": "#2d3748",
-          "text-main-light": "#2d3748",
-          "text-main-dark": "#e2e8f0",
-          "text-muted-light": "#718096",
-          "text-muted-dark": "#a0aec0",
+          primary: "var(--tw-primary, #00a8e8)",
+          secondary: "var(--tw-secondary, #ffd100)",
+          "background-light": "var(--tw-bg-light, #f4f7fb)",
+          "background-dark": "var(--tw-bg-dark, #1a202c)",
+          "card-light": "var(--tw-card-light, #ffffff)",
+          "card-dark": "var(--tw-card-dark, #2d3748)",
+          "text-main-light": "var(--tw-text-main-light, #2d3748)",
+          "text-main-dark": "var(--tw-text-main-dark, #e2e8f0)",
+          "text-muted-light": "var(--tw-text-muted-light, #718096)",
+          "text-muted-dark": "var(--tw-text-muted-dark, #a0aec0)",
         },
-        fontFamily: {
-          display: ["Montserrat", "sans-serif"],
-        },
-        borderRadius: {
-          DEFAULT: "1rem",
-        },
+        fontFamily: { display: ["Montserrat", "sans-serif"] },
+        borderRadius: { DEFAULT: "1rem" },
       },
     },
   };
 </script>
 <style>
+  /* ===== LUGAR THEME VARIABLES ===== */
+  :root {
+    --tw-primary:          #00a8e8;
+    --tw-primary-rgb:      0,168,232;
+    --tw-secondary:        #ffd100;
+    --tw-bg-light:         #f4f7fb;
+    --tw-bg-dark:          #1a202c;
+    --tw-card-light:       #ffffff;
+    --tw-card-dark:        #2d3748;
+    --tw-text-main-light:  #2d3748;
+    --tw-text-main-dark:   #e2e8f0;
+    --tw-text-muted-light: #718096;
+    --tw-text-muted-dark:  #a0aec0;
+    --theme-shadow:        rgba(0,168,232,0.18);
+    --theme-gradient-from: #00a8e8;
+    --theme-gradient-to:   #0069b4;
+  }
+
+  /* Smooth transitions for themed elements */
+  body, header, div, p, span, h1, h2, h3, a {
+    transition: background-color 0.45s ease, color 0.45s ease,
+                border-color 0.45s ease, box-shadow 0.45s ease;
+  }
+
+  /* Header accent bar uses theme color */
+  header {
+    box-shadow: 0 3px 0 var(--tw-primary), 0 1px 16px var(--theme-shadow) !important;
+  }
+
   body {
     min-height: max(884px, 100dvh);
   }
@@ -263,6 +288,64 @@
 </main>
 
 <script>
+  // ── LUGAR THEME CONFIG (same as index.html) ───────────────────
+  const LUGAR_THEMES = {
+    'Deporte': {
+      primary: '#3f70c9', rgb: '63,112,201', secondary: '#ff9f1c', from: '#3f70c9', to: '#1a3a7a',
+      bgLight: '#f0f4fa', cardLight: '#ffffff', textMainLight: '#1a2b4d', textMutedLight: '#5a739e',
+      bgDark: '#0d1627', cardDark: '#1a2b4d', textMainDark: '#f0f4fa', textMutedDark: '#8a9fbe'
+    },
+    'Portal': {
+      primary: '#00820e', rgb: '0,130,14', secondary: '#8bc34a', from: '#00820e', to: '#004d08',
+      bgLight: '#ebf5ec', cardLight: '#ffffff', textMainLight: '#003306', textMutedLight: '#4d8054',
+      bgDark: '#041707', cardDark: '#0a2e12', textMainDark: '#ebf5ec', textMutedDark: '#75a67c'
+    },
+    'Juventud': {
+      primary: '#f63c8f', rgb: '246,60,143', secondary: '#a855f7', from: '#f63c8f', to: '#a00050',
+      bgLight: '#fdf0f6', cardLight: '#ffffff', textMainLight: '#591231', textMutedLight: '#994d71',
+      bgDark: '#1f0410', cardDark: '#3b0a21', textMainDark: '#fdf0f6', textMutedDark: '#bf86a1'
+    },
+    'Salon Prevedello': {
+      primary: '#4c1e6f', rgb: '76,30,111', secondary: '#c4a022', from: '#4c1e6f', to: '#4c1e6f',
+      bgLight: '#f3eff6', cardLight: '#ffffff', textMainLight: '#260f38', textMutedLight: '#6b4d8a',
+      bgDark: '#12071a', cardDark: '#260f38', textMainDark: '#f3eff6', textMutedDark: '#8b6ca8'
+    },
+    'SUM 140': {
+      primary: '#f48104', rgb: '244,129,4', secondary: '#1565c0', from: '#f48104', to: '#f48104',
+      bgLight: '#fdf4ea', cardLight: '#ffffff', textMainLight: '#5c3000', textMutedLight: '#9e6b38',
+      bgDark: '#211100', cardDark: '#452400', textMainDark: '#fdf4ea', textMutedDark: '#c28f5c'
+    },
+    'SUM Vias Oeste': {
+      primary: '#4dab94', rgb: '77,171,148', secondary: '#f4845f', from: '#4dab94', to: '#4dab94',
+      bgLight: '#f0f8f6', cardLight: '#ffffff', textMainLight: '#1a3d34', textMutedLight: '#528073',
+      bgDark: '#0a1a15', cardDark: '#16362e', textMainDark: '#f0f8f6', textMutedDark: '#7ca89c'
+    },
+  };
+  const DEFAULT_THEME = {
+    primary: '#00a8e8', rgb: '0,168,232', secondary: '#ffd100', from: '#00a8e8', to: '#0069b4',
+    bgLight: '#f4f7fb', cardLight: '#ffffff', textMainLight: '#2d3748', textMutedLight: '#718096',
+    bgDark: '#1a202c', cardDark: '#2d3748', textMainDark: '#e2e8f0', textMutedDark: '#a0aec0'
+  };
+
+  function applyLugarTheme(lugarName) {
+    const theme = LUGAR_THEMES[lugarName] || DEFAULT_THEME;
+    const root = document.documentElement;
+    root.style.setProperty('--tw-primary',           theme.primary);
+    root.style.setProperty('--tw-primary-rgb',       theme.rgb);
+    root.style.setProperty('--tw-secondary',         theme.secondary);
+    root.style.setProperty('--tw-bg-light',          theme.bgLight);
+    root.style.setProperty('--tw-bg-dark',           theme.bgDark);
+    root.style.setProperty('--tw-card-light',        theme.cardLight);
+    root.style.setProperty('--tw-card-dark',         theme.cardDark);
+    root.style.setProperty('--tw-text-main-light',   theme.textMainLight);
+    root.style.setProperty('--tw-text-main-dark',    theme.textMainDark);
+    root.style.setProperty('--tw-text-muted-light',  theme.textMutedLight);
+    root.style.setProperty('--tw-text-muted-dark',   theme.textMutedDark);
+    root.style.setProperty('--theme-shadow',         `rgba(${theme.rgb},0.2)`);
+    root.style.setProperty('--theme-gradient-from',  theme.from);
+    root.style.setProperty('--theme-gradient-to',    theme.to);
+  }
+
   async function loadWorkshopDetail() {
     if (!window.db) {
       setTimeout(loadWorkshopDetail, 100);
@@ -288,6 +371,9 @@
       }
 
       const data = docSnap.data();
+
+      // Apply lugar theme immediately after data loads
+      applyLugarTheme(data.barrio || '');
       
       const bannerStyle = data.imageUrl 
         ? `background-image: url('${data.imageUrl}'); background-size: cover; background-position: center;`
@@ -318,9 +404,8 @@
         <!-- Desktop wrapper: left panel (hero + CTA) | right panel (details) -->
         <div class="desktop-left-panel">
           <!-- Hero image -->
-          <div class="hero-banner w-full h-56 relative flex items-center justify-center overflow-hidden" style="${bannerStyle}">
+          <div class="hero-banner w-full h-56 relative overflow-hidden" style="${bannerStyle}">
             ${overlayHTML}
-            <span class="material-icons text-white/${data.imageUrl?'80':'30'} text-8xl relative z-10 ${data.imageUrl?'drop-shadow-lg':''}">${data.icon || 'music_note'}</span>
             <span class="absolute bottom-4 right-4 bg-white dark:bg-card-dark text-primary font-bold text-xs px-3 py-1 rounded-full shadow-md border border-gray-100 dark:border-gray-700 uppercase tracking-wider z-10">${data.category}</span>
           </div>
 
@@ -342,7 +427,7 @@
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white leading-tight mb-3">${data.title}</h1>
             <div class="flex flex-wrap gap-2 mb-4">
               <span class="tag-chip inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-semibold">
-                <span class="material-icons text-[16px]">${data.icon || 'music_note'}</span> ${data.category}
+                <span class="material-icons text-[16px]">school</span> ${data.category}
               </span>
               <span class="tag-chip inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-sm font-medium">
                 <span class="material-icons text-[16px]">location_on</span> ${data.barrio}

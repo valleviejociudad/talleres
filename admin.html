@@ -323,12 +323,12 @@
           </select>
         </div>
 
-        <!-- Barrio (dynamic from Firestore) -->
+        <!-- Lugar (dynamic from Firestore) -->
         <div>
-          <label class="block text-[0.7rem] font-bold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-1.5">Barrio *</label>
+          <label class="block text-[0.7rem] font-bold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-1.5">Lugar *</label>
           <select id="w_barrio" required
             class="form-input w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-sm px-4 py-2.5 text-gray-800 dark:text-gray-100 transition-all">
-            <option value="" disabled selected>Cargando barrios...</option>
+            <option value="" disabled selected>Cargando lugares...</option>
           </select>
         </div>
 
@@ -435,16 +435,6 @@
             class="form-input w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-sm px-4 py-2.5 text-gray-800 dark:text-gray-100 transition-all"/>
         </div>
 
-        <!-- Ícono Material -->
-        <div>
-          <label class="block text-[0.7rem] font-bold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-1.5">Ícono Material Icons *</label>
-          <div class="relative">
-            <input type="text" id="w_icon" value="music_note" required
-              class="form-input w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-sm px-4 py-2.5 pr-12 text-gray-800 dark:text-gray-100 transition-all"/>
-            <span id="iconPreviewBadge" class="material-icons absolute right-3 top-1/2 -translate-y-1/2 text-primary text-xl pointer-events-none">music_note</span>
-          </div>
-          <p class="text-[0.65rem] text-text-muted-light mt-1">Ej: music_note · sports_soccer · palette · sports_martial_arts</p>
-        </div>
 
         <!-- Color del banner -->
         <div>
@@ -489,7 +479,6 @@
         <p class="text-[0.7rem] font-bold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-2">Vista Previa de la Tarjeta</p>
         <div id="previewCard" class="max-w-sm rounded-2xl shadow-md overflow-hidden bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800">
           <div id="previewBanner" class="h-28 relative flex items-center justify-center overflow-hidden" style="background-color:#3b82f6">
-            <span id="previewIcon" class="material-icons text-white/60 text-5xl z-10">music_note</span>
           </div>
           <div class="p-4 flex flex-col gap-2 relative">
             <span id="previewCategory" class="absolute -top-4 right-4 bg-white dark:bg-card-dark text-primary font-bold text-xs px-3 py-1 rounded-full shadow-md border border-gray-100 dark:border-gray-700 uppercase tracking-wider">Música</span>
@@ -623,16 +612,18 @@
         </div>
       </div>
 
-      <!-- BARRIOS subsection -->
+      <!-- LUGARES subsection -->
       <div class="border-t border-gray-100 dark:border-gray-700 pt-4">
         <div class="flex items-center gap-2 mb-3">
           <div class="w-7 h-7 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600">
             <span class="material-icons text-[15px]">location_on</span>
           </div>
-          <h3 class="text-sm font-bold text-gray-800 dark:text-white">Barrios</h3>
+          <h3 class="text-sm font-bold text-gray-800 dark:text-white">Lugares</h3>
         </div>
         <div class="flex gap-2 mb-3">
-          <input type="text" id="barrio_name" placeholder="Nombre del barrio"
+          <input type="color" id="barrio_color" value="#00a8e8"
+            class="h-10 w-12 rounded-xl cursor-pointer bg-gray-50 border border-gray-200 dark:border-gray-600 p-1 shrink-0" title="Color del lugar"/>
+          <input type="text" id="barrio_name" placeholder="Nombre del lugar"
             class="form-input flex-1 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-sm px-4 py-2.5 text-gray-800 dark:text-gray-100 transition-all"/>
           <button onclick="addBarrio()"
             class="shrink-0 flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl font-bold text-sm shadow-sm transition-all">
@@ -760,9 +751,12 @@
   // BARRIOS MANAGEMENT
   // ────────────────────────────────────────────────────────────────────────────
   const DEFAULT_BARRIOS = [
-    { name: 'Centro',     order: 1 },
-    { name: 'La Antena', order: 2 },
-    { name: 'Santa Cruz', order: 3 },
+    { name: 'Deporte',         color: '#3f70c9', order: 1 },
+    { name: 'Portal',          color: '#00820e', order: 2 },
+    { name: 'Juventud',        color: '#f63c8f', order: 3 },
+    { name: 'Salon Prevedello',color: '#4c1e6f', order: 4 },
+    { name: 'SUM 140',         color: '#f48104', order: 5 },
+    { name: 'SUM Vias Oeste',  color: '#4dab94', order: 6 },
   ];
 
   function renderBarrioSelect(items) {
@@ -770,22 +764,25 @@
     const prev = sel.value;
     sel.innerHTML = items.length
       ? items.map(b => `<option value="${b.name}">${b.name}</option>`).join('')
-      : '<option value="" disabled>No hay barrios. Agregá uno.</option>';
+      : '<option value="" disabled>No hay lugares. Agregá uno.</option>';
     if (prev) sel.value = prev;
   }
 
   function renderBarrioList(items) {
     const list = document.getElementById('barrioList');
     if (!items.length) {
-      list.innerHTML = '<p class="col-span-full text-center text-sm text-gray-400 py-2">Sin barrios. Agregá uno arriba.</p>';
+      list.innerHTML = '<p class="col-span-full text-center text-sm text-gray-400 py-2">Sin lugares. Agregá uno arriba.</p>';
       return;
     }
     list.innerHTML = items.map(b => `
       <div class="flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700">
-        <span class="text-sm font-semibold text-gray-800 dark:text-white">${b.name}</span>
+        <div class="flex items-center gap-2 min-w-0">
+          <span style="width:10px;height:10px;border-radius:50%;background:${b.color || '#00a8e8'};flex-shrink:0;display:inline-block;box-shadow:0 1px 3px rgba(0,0,0,0.2)"></span>
+          <span class="text-sm font-semibold text-gray-800 dark:text-white truncate">${b.name}</span>
+        </div>
         <button onclick="deleteBarrio('${b.id}', '${b.name}')"
           class="p-1 rounded-full text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors shrink-0"
-          title="Eliminar barrio">
+          title="Eliminar lugar">
           <span class="material-icons text-[17px]">delete</span>
         </button>
       </div>
@@ -793,20 +790,22 @@
   }
 
   async function addBarrio() {
-    const name = document.getElementById('barrio_name').value.trim();
-    if (!name) { showToast('Ingresá un nombre para el barrio', 'error'); return; }
+    const name  = document.getElementById('barrio_name').value.trim();
+    const color = document.getElementById('barrio_color').value || '#00a8e8';
+    if (!name) { showToast('Ingresá un nombre para el lugar', 'error'); return; }
     try {
-      await window.addDoc(window.collection(window.db, 'barrios'), { name, order: Date.now() });
-      document.getElementById('barrio_name').value = '';
-      showToast(`✅ Barrio "${name}" agregado`, 'success');
+      await window.addDoc(window.collection(window.db, 'barrios'), { name, color, order: Date.now() });
+      document.getElementById('barrio_name').value  = '';
+      document.getElementById('barrio_color').value = '#00a8e8';
+      showToast(`✅ Lugar "${name}" agregado`, 'success');
     } catch (e) { showToast('Error: ' + e.message, 'error'); }
   }
 
   window.deleteBarrio = async (id, name) => {
-    if (!confirm(`¿Eliminar el barrio "${name}"?`)) return;
+    if (!confirm(`¿Eliminar el lugar "${name}"?`)) return;
     try {
       await window.deleteDoc(window.doc(window.db, 'barrios', id));
-      showToast(`Barrio "${name}" eliminado`, 'success');
+      showToast(`Lugar "${name}" eliminado`, 'success');
     } catch (e) { showToast('Error: ' + e.message, 'error'); }
   };
 
@@ -961,7 +960,6 @@
     const ageText  = document.getElementById('w_ageText').value  || 'Edad';
     const imageUrl = document.getElementById('w_image').value;
     const color    = document.getElementById('w_color').value;
-    const icon     = document.getElementById('w_icon').value     || 'music_note';
     const status   = document.getElementById('w_status').value;
     const costo    = document.getElementById('w_costo').value;
     const dias     = getSelectedDays();
@@ -972,8 +970,6 @@
     document.getElementById('previewDays').textContent     = dias.length ? dias.join(', ') : 'Días a confirmar';
     document.getElementById('previewSchedule').textContent = buildScheduleStr();
     document.getElementById('previewAge').textContent      = ageText;
-    document.getElementById('previewIcon').textContent     = icon;
-    document.getElementById('iconPreviewBadge').textContent = icon;
 
     const costoEl = document.getElementById('previewCosto');
     costoEl.textContent = costo === 'gratuito' ? 'Gratuito' : 'Arancelado';
@@ -1005,7 +1001,7 @@
   }
 
   // Attach listeners for live preview
-  ['w_title','w_category','w_location','w_horaInicio','w_horaFin','w_ageText','w_image','w_icon','w_color','w_status'].forEach(id => {
+  ['w_title','w_category','w_location','w_horaInicio','w_horaFin','w_ageText','w_image','w_color','w_status'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.addEventListener('input', updatePreview);
     if (el && el.tagName === 'SELECT') el.addEventListener('change', updatePreview);
@@ -1028,7 +1024,6 @@
   document.getElementById('resetBtn').addEventListener('click', () => {
     document.getElementById('addWorkshopForm').reset();
     document.getElementById('w_color').value = '#3b82f6';
-    document.getElementById('w_icon').value  = 'music_note';
     // reset costo toggle to gratuito
     document.getElementById('w_costo').value = 'gratuito';
     const btn  = document.getElementById('w_costo_toggle');
@@ -1172,7 +1167,7 @@
             imageUrl:      document.getElementById('w_image').value.trim(),
             inscripcionUrl:document.getElementById('w_inscripcionUrl').value.trim(),
             status:        document.getElementById('w_status').value,
-            icon:          document.getElementById('w_icon').value.trim() || 'music_note',
+
             bannerColor:   document.getElementById('w_color').value,
           };
 
@@ -1216,7 +1211,7 @@
         document.getElementById('w_desc').value         = data.description || '';
         document.getElementById('w_image').value        = data.imageUrl || '';
         document.getElementById('w_inscripcionUrl').value = data.inscripcionUrl || '';
-        document.getElementById('w_icon').value         = data.icon || 'music_note';
+
         document.getElementById('w_color').value        = data.bannerColor || '#3b82f6';
 
         // Dias checkboxes
@@ -1262,7 +1257,6 @@
         editingId = null;
         document.getElementById('addWorkshopForm').reset();
         document.getElementById('w_color').value = '#3b82f6';
-        document.getElementById('w_icon').value  = 'music_note';
         // Reset costo toggle
         document.getElementById('w_costo').value = 'gratuito';
         document.getElementById('w_costo_toggle').classList.remove('bg-gray-400');

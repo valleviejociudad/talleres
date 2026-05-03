@@ -34,16 +34,16 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: "#00a8e8", // Cyan blue from the logo/buttons
-                        secondary: "#ffd100", // Yellow accent
-                        "background-light": "#f4f7fb",
-                        "background-dark": "#1a202c",
-                        "card-light": "#ffffff",
-                        "card-dark": "#2d3748",
-                        "text-main-light": "#2d3748",
-                        "text-main-dark": "#e2e8f0",
-                        "text-muted-light": "#718096",
-                        "text-muted-dark": "#a0aec0",
+                        primary: "var(--tw-primary, #00a8e8)", // Cyan blue from the logo/buttons
+                        secondary: "var(--tw-secondary, #ffd100)", // Yellow accent
+                        "background-light": "var(--tw-bg-light, #f4f7fb)",
+                        "background-dark": "var(--tw-bg-dark, #1a202c)",
+                        "card-light": "var(--tw-card-light, #ffffff)",
+                        "card-dark": "var(--tw-card-dark, #2d3748)",
+                        "text-main-light": "var(--tw-text-main-light, #2d3748)",
+                        "text-main-dark": "var(--tw-text-main-dark, #e2e8f0)",
+                        "text-muted-light": "var(--tw-text-muted-light, #718096)",
+                        "text-muted-dark": "var(--tw-text-muted-dark, #a0aec0)",
                     },
                     fontFamily: {
                         display: ["Montserrat", "sans-serif"],
@@ -61,6 +61,173 @@
         .no-scrollbar {
             -ms-overflow-style: none;scrollbar-width: none;}
     </style>
+
+<style>
+  /* ===== LUGAR THEME SYSTEM ===== */
+  :root {
+    --tw-primary:          #00a8e8;
+    --tw-primary-rgb:      0,168,232;
+    --tw-secondary:        #ffd100;
+    --tw-bg-light:         #f4f7fb;
+    --tw-bg-dark:          #1a202c;
+    --tw-card-light:       #ffffff;
+    --tw-card-dark:        #2d3748;
+    --tw-text-main-light:  #2d3748;
+    --tw-text-main-dark:   #e2e8f0;
+    --tw-text-muted-light: #718096;
+    --tw-text-muted-dark:  #a0aec0;
+    
+    --theme-light:         rgba(0,168,232,0.08);
+    --theme-glow:          rgba(0,168,232,0.25);
+    --theme-shadow:        rgba(0,168,232,0.18);
+    --theme-border:        rgba(0,168,232,0.2);
+    --theme-gradient-from: #00a8e8;
+    --theme-gradient-to:   #0069b4;
+  }
+
+  /* Smooth transitions for all themed elements globally */
+  body, header, aside, article, div, p, span, h1, h3, button, input {
+    transition: background-color 0.45s ease, color 0.45s ease,
+                border-color 0.45s ease, box-shadow 0.45s ease;
+  }
+  
+  .filter-chip.active, .sidebar-chip.active, .filter-btn-active,
+  input[type="text"]:focus { transition: all 0.35s cubic-bezier(0.22,1,0.36,1); }
+
+  /* ── Header ── */
+  header {
+    box-shadow: 0 3px 0 var(--tw-primary), 0 1px 16px var(--theme-shadow) !important;
+  }
+  body.lugar-selected header {
+    background-color: var(--tw-card-light) !important;
+  }
+  .dark body.lugar-selected header {
+    background-color: var(--tw-card-dark) !important;
+  }
+
+  /* ── Sidebar Active ── */
+  body.lugar-selected #sidebar-lugares-title {
+    color: var(--tw-primary) !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.1em;
+  }
+
+  /* ── Cards Hover ── */
+  article:hover {
+    box-shadow: 0 16px 40px var(--theme-shadow) !important;
+  }
+
+  /* ── Inputs ── */
+  input[type="text"]:focus {
+    box-shadow: 0 0 0 3px var(--theme-glow), 0 4px 12px rgba(var(--tw-primary-rgb),0.1);
+  }
+
+  /* ── Chips ── */
+  .sidebar-chip.active {
+    background: var(--tw-primary) !important;
+    border-color: var(--tw-primary) !important;
+    color: white !important;
+    box-shadow: 0 4px 12px var(--theme-shadow) !important;
+  }
+  .sidebar-chip:hover {
+    background: var(--theme-light) !important;
+    color: var(--tw-primary) !important;
+    border-color: var(--theme-border) !important;
+  }
+  .filter-chip.active, .filter-chip:hover {
+    background: var(--tw-primary) !important;
+    border-color: var(--tw-primary) !important;
+    color: white !important;
+  }
+  .filter-btn-active {
+    border-color: var(--tw-primary) !important;
+    color: var(--tw-primary) !important;
+  }
+
+  /* ── Result count ── */
+  #result-count {
+    color: var(--tw-primary);
+    font-weight: 600;
+    font-size: 0.78rem;
+    opacity: 0.85;
+  }
+
+  /* ── Search bar desktop border accent ── */
+  body.lugar-selected .desktop-sidebar input {
+    background: rgba(var(--tw-primary-rgb),0.04) !important;
+  }
+
+  /* Lugar color dot in sidebar chip */
+  .lugar-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: inline-block;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+
+  /* Active chip logo */
+  .sidebar-chip.active .lugar-dot {
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.6), 0 1px 3px rgba(0,0,0,0.3);
+  }
+
+  /* Hero title with theme gradient */
+  .themed-title {
+    background: linear-gradient(135deg, var(--theme-gradient-from), var(--theme-gradient-to));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    transition: all 0.5s ease;
+  }
+  .themed-title.no-theme {
+    -webkit-text-fill-color: unset;
+    background: none;
+    color: inherit;
+  }
+
+  /* Sidebar title accent */
+  .sidebar-section-title.themed {
+    color: var(--theme-primary) !important;
+    font-weight: 800;
+    transition: color 0.4s ease;
+  }
+
+  /* Mobile lugar button */
+  #btn-lugares.lugar-themed {
+    border-color: var(--theme-primary);
+    background: var(--theme-light);
+    color: var(--theme-primary);
+  }
+
+  /* ===== CIRCULAR REVEAL ANIMATION ===== */
+  .circular-reveal-overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9998;
+    will-change: clip-path;
+    /* clip-path and background are set dynamically via JS */
+  }
+
+  /* Ripple ring that bursts from the click point */
+  @keyframes lugarRippleBurst {
+    0%   { transform: scale(0); opacity: 0.9; }
+    60%  { opacity: 0.5; }
+    100% { transform: scale(1); opacity: 0; }
+  }
+  .lugar-ripple {
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    border: 3px solid currentColor;
+    width: 80px;
+    height: 80px;
+    margin: -40px 0 0 -40px;
+    animation: lugarRippleBurst 0.55s cubic-bezier(0.22,1,0.36,1) forwards;
+  }
+</style>
 <style>
   /* ===== DESKTOP LAYOUT (≥1024px) ===== */
   @media (min-width: 1024px) {
@@ -383,7 +550,7 @@
   </style>
   </head>
 <body class="bg-background-light dark:bg-background-dark text-text-main-light dark:text-text-main-dark font-display antialiased">
-<header class="sticky top-0 z-50 bg-white dark:bg-card-dark shadow-sm px-4 py-3 flex justify-center items-center transition-colors duration-200">
+<header class="sticky top-0 z-50 bg-card-light dark:bg-card-dark shadow-sm px-4 py-3 flex justify-center items-center transition-colors duration-200">
 <img src="valleviejo.svg" alt="Valle Viejo" class="h-10"/>
 </header>
 
@@ -391,11 +558,11 @@
 <div class="desktop-page-wrapper">
 
 <!-- ===== DESKTOP SIDEBAR ===== -->
-<aside class="desktop-sidebar bg-white dark:bg-card-dark">
+<aside class="desktop-sidebar bg-card-light dark:bg-card-dark">
   <p class="sidebar-section-title">Buscar</p>
   <div class="relative">
     <span class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" style="font-size:18px">search</span>
-    <input id="search-input-desktop" class="w-full pl-9 pr-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-primary focus:outline-none transition-shadow" placeholder="Buscar talleres..." type="text" oninput="applyFilters()"/>
+    <input id="search-input-desktop" class="w-full pl-9 pr-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-background-dark text-sm text-text-main-light dark:text-text-main-dark focus:ring-2 focus:ring-primary focus:outline-none transition-shadow" placeholder="Buscar talleres..." type="text" oninput="applyFilters()"/>
   </div>
   <!-- Clear button desktop — below search -->
   <button onclick="clearFilters()" id="sidebar-clear-btn"
@@ -407,12 +574,29 @@
     Limpiar filtros
   </button>
 
-  <p class="sidebar-section-title">Barrio</p>
+  <p class="sidebar-section-title" id="sidebar-lugares-title">Lugar</p>
   <div class="sidebar-chips" id="sidebar-barrios">
-    <button class="sidebar-chip active" data-filter2="barrio" data-value2=""><span class="material-icons">location_on</span>Todos los Barrios</button>
-    <button class="sidebar-chip" data-filter2="barrio" data-value2="Centro"><span class="material-icons">location_on</span>Centro</button>
-    <button class="sidebar-chip" data-filter2="barrio" data-value2="La Antena"><span class="material-icons">location_on</span>La Antena</button>
-    <button class="sidebar-chip" data-filter2="barrio" data-value2="Santa Cruz"><span class="material-icons">location_on</span>Santa Cruz</button>
+    <button class="sidebar-chip active" data-filter2="barrio" data-value2="" data-lugar-color="">
+      <span class="material-icons" style="font-size:17px">location_on</span>Todos los Lugares
+    </button>
+    <button class="sidebar-chip" data-filter2="barrio" data-value2="Deporte" data-lugar-color="#3f70c9">
+      <span class="lugar-dot" style="background:#3f70c9"></span>Deporte
+    </button>
+    <button class="sidebar-chip" data-filter2="barrio" data-value2="Portal" data-lugar-color="#00820e">
+      <span class="lugar-dot" style="background:#00820e"></span>Portal
+    </button>
+    <button class="sidebar-chip" data-filter2="barrio" data-value2="Juventud" data-lugar-color="#f63c8f">
+      <span class="lugar-dot" style="background:#f63c8f"></span>Juventud
+    </button>
+    <button class="sidebar-chip" data-filter2="barrio" data-value2="Salon Prevedello" data-lugar-color="#4c1e6f">
+      <span class="lugar-dot" style="background:#4c1e6f"></span>Salon Prevedello
+    </button>
+    <button class="sidebar-chip" data-filter2="barrio" data-value2="SUM 140" data-lugar-color="#f48104">
+      <span class="lugar-dot" style="background:#f48104"></span>SUM 140
+    </button>
+    <button class="sidebar-chip" data-filter2="barrio" data-value2="SUM Vias Oeste" data-lugar-color="#4dab94">
+      <span class="lugar-dot" style="background:#4dab94"></span>SUM Vias Oeste
+    </button>
   </div>
 
   <p class="sidebar-section-title">Categoría</p>
@@ -434,12 +618,12 @@
 
 <main class="px-4 py-6 space-y-6 desktop-main-content">
 <div class="space-y-4">
-<h1 class="text-2xl font-bold text-gray-900 dark:text-white desktop-page-title">Talleres Municipales</h1>
-<p class="text-sm text-text-muted-light dark:text-text-muted-dark">Encontrá el taller ideal para vos cerca de tu barrio.</p>
+<h1 class="text-2xl font-bold text-text-main-light dark:text-text-main-dark desktop-page-title themed-title no-theme">Talleres Municipales</h1>
+<p class="text-sm text-text-muted-light dark:text-text-muted-dark">Encontrá el taller ideal para vos cerca de tu lugar.</p>
 <!-- Mobile search (hidden on desktop) -->
 <div class="relative">
 <span class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">search</span>
-<input id="search-input" class="w-full pl-10 pr-4 py-3 rounded-full border-none bg-white dark:bg-card-dark shadow-sm text-sm text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-primary focus:outline-none transition-shadow" placeholder="Buscar talleres..." type="text" oninput="applyFilters()"/>
+<input id="search-input" class="w-full pl-10 pr-4 py-3 rounded-full border-none bg-card-light dark:bg-card-dark shadow-sm text-sm text-text-main-light dark:text-text-main-dark focus:ring-2 focus:ring-primary focus:outline-none transition-shadow" placeholder="Buscar talleres..." type="text" oninput="applyFilters()"/>
 </div>
 <!-- Clear button mobile — below search -->
 <button onclick="clearFilters()" id="mobile-clear-btn"
@@ -455,24 +639,27 @@
 <div class="mobile-filters-row" style="position:relative; z-index:50;">
 <div class="flex flex-wrap gap-2">
 
-  <!-- Dropdown: Barrios -->
+  <!-- Dropdown: Lugares -->
   <div class="filter-dropdown">
-    <button id="btn-barrios" onclick="toggleDropdown('pop-barrios','btn-barrios')" class="flex items-center gap-1 px-4 py-2 rounded-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 text-sm font-medium whitespace-nowrap shadow-sm hover:border-primary transition-colors">
-      <span class="material-icons text-[16px] text-primary">location_on</span>
-      Todos los Barrios
-      <span class="material-icons text-[18px] text-gray-400" id="icon-barrios">arrow_drop_down</span>
+    <button id="btn-lugares" onclick="toggleDropdown('pop-lugares','btn-lugares')" class="flex items-center gap-1 px-4 py-2 rounded-full bg-card-light dark:bg-card-dark border border-gray-200 dark:border-gray-700 text-sm font-medium whitespace-nowrap shadow-sm hover:border-primary transition-colors" style="transition:all 0.3s ease">
+      <span class="material-icons text-[16px]" id="icon-lugar-pin" style="color:var(--theme-primary)">location_on</span>
+      <span id="btn-lugares-label">Todos los Lugares</span>
+      <span class="material-icons text-[18px] text-gray-400" id="icon-lugares">arrow_drop_down</span>
     </button>
-    <div class="filter-popover" id="pop-barrios">
-      <button class="filter-chip active" data-filter="barrio" data-value="">Todos los Barrios</button>
-      <button class="filter-chip" data-filter="barrio" data-value="Centro">Centro</button>
-      <button class="filter-chip" data-filter="barrio" data-value="La Antena">La Antena</button>
-      <button class="filter-chip" data-filter="barrio" data-value="Santa Cruz">Santa Cruz</button>
+    <div class="filter-popover" id="pop-lugares">
+      <button class="filter-chip active" data-filter="barrio" data-value="" data-lugar-color="">Todos los Lugares</button>
+      <button class="filter-chip" data-filter="barrio" data-value="Deporte" data-lugar-color="#3f70c9">🏋️ Deporte</button>
+      <button class="filter-chip" data-filter="barrio" data-value="Portal" data-lugar-color="#00820e">🏛️ Portal</button>
+      <button class="filter-chip" data-filter="barrio" data-value="Juventud" data-lugar-color="#f63c8f">🌟 Juventud</button>
+      <button class="filter-chip" data-filter="barrio" data-value="Salon Prevedello" data-lugar-color="#4c1e6f">🎭 Salon Prevedello</button>
+      <button class="filter-chip" data-filter="barrio" data-value="SUM 140" data-lugar-color="#f48104">🏠 SUM 140</button>
+      <button class="filter-chip" data-filter="barrio" data-value="SUM Vias Oeste" data-lugar-color="#4dab94">🌿 SUM Vias Oeste</button>
     </div>
   </div>
 
   <!-- Dropdown: Talleres -->
   <div class="filter-dropdown">
-    <button id="btn-talleres" onclick="toggleDropdown('pop-talleres','btn-talleres')" class="flex items-center gap-1 px-4 py-2 rounded-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 text-sm font-medium whitespace-nowrap shadow-sm hover:border-primary transition-colors">
+    <button id="btn-talleres" onclick="toggleDropdown('pop-talleres','btn-talleres')" class="flex items-center gap-1 px-4 py-2 rounded-full bg-card-light dark:bg-card-dark border border-gray-200 dark:border-gray-700 text-sm font-medium whitespace-nowrap shadow-sm hover:border-primary transition-colors">
       <span class="material-icons text-[16px] text-primary">school</span>
       Todos los Talleres
       <span class="material-icons text-[18px] text-gray-400" id="icon-talleres">arrow_drop_down</span>
@@ -485,7 +672,7 @@
 
   <!-- Dropdown: Edades -->
   <div class="filter-dropdown">
-    <button id="btn-edades" onclick="toggleDropdown('pop-edades','btn-edades')" class="flex items-center gap-1 px-4 py-2 rounded-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 text-sm font-medium whitespace-nowrap shadow-sm hover:border-primary transition-colors">
+    <button id="btn-edades" onclick="toggleDropdown('pop-edades','btn-edades')" class="flex items-center gap-1 px-4 py-2 rounded-full bg-card-light dark:bg-card-dark border border-gray-200 dark:border-gray-700 text-sm font-medium whitespace-nowrap shadow-sm hover:border-primary transition-colors">
       <span class="material-icons text-[16px] text-primary">people</span>
       Todas las Edades
       <span class="material-icons text-[18px] text-gray-400" id="icon-edades">arrow_drop_down</span>
@@ -503,10 +690,177 @@
 </div>
 <!-- END mobile filters -->
 
+<!-- Circular reveal overlay (populated by JS) -->
+<div class="circular-reveal-overlay" id="circular-reveal"></div>
+
 <script>
-  const allPopoverIds = ['pop-barrios', 'pop-talleres', 'pop-edades'];
-  const allBtnIds    = ['btn-barrios', 'btn-talleres', 'btn-edades'];
-  const allIconIds   = ['icon-barrios','icon-talleres','icon-edades'];
+  // ── LUGAR THEME CONFIG ────────────────────────────────────────
+  const LUGAR_THEMES = {
+    'Deporte': {
+      primary: '#3f70c9', rgb: '63,112,201', secondary: '#ff9f1c', from: '#3f70c9', to: '#1a3a7a',
+      bgLight: '#f0f4fa', cardLight: '#ffffff', textMainLight: '#1a2b4d', textMutedLight: '#5a739e',
+      bgDark: '#0d1627', cardDark: '#1a2b4d', textMainDark: '#f0f4fa', textMutedDark: '#8a9fbe'
+    },
+    'Portal': {
+      primary: '#00820e', rgb: '0,130,14', secondary: '#8bc34a', from: '#00820e', to: '#004d08',
+      bgLight: '#ebf5ec', cardLight: '#ffffff', textMainLight: '#003306', textMutedLight: '#4d8054',
+      bgDark: '#041707', cardDark: '#0a2e12', textMainDark: '#ebf5ec', textMutedDark: '#75a67c'
+    },
+    'Juventud': {
+      primary: '#f63c8f', rgb: '246,60,143', secondary: '#a855f7', from: '#f63c8f', to: '#a00050',
+      bgLight: '#fdf0f6', cardLight: '#ffffff', textMainLight: '#591231', textMutedLight: '#994d71',
+      bgDark: '#1f0410', cardDark: '#3b0a21', textMainDark: '#fdf0f6', textMutedDark: '#bf86a1'
+    },
+    'Salon Prevedello': {
+      primary: '#4c1e6f', rgb: '76,30,111', secondary: '#c4a022', from: '#4c1e6f', to: '#4c1e6f',
+      bgLight: '#f3eff6', cardLight: '#ffffff', textMainLight: '#260f38', textMutedLight: '#6b4d8a',
+      bgDark: '#12071a', cardDark: '#260f38', textMainDark: '#f3eff6', textMutedDark: '#8b6ca8'
+    },
+    'SUM 140': {
+      primary: '#f48104', rgb: '244,129,4', secondary: '#1565c0', from: '#f48104', to: '#f48104',
+      bgLight: '#fdf4ea', cardLight: '#ffffff', textMainLight: '#5c3000', textMutedLight: '#9e6b38',
+      bgDark: '#211100', cardDark: '#452400', textMainDark: '#fdf4ea', textMutedDark: '#c28f5c'
+    },
+    'SUM Vias Oeste': {
+      primary: '#4dab94', rgb: '77,171,148', secondary: '#f4845f', from: '#4dab94', to: '#4dab94',
+      bgLight: '#f0f8f6', cardLight: '#ffffff', textMainLight: '#1a3d34', textMutedLight: '#528073',
+      bgDark: '#0a1a15', cardDark: '#16362e', textMainDark: '#f0f8f6', textMutedDark: '#7ca89c'
+    },
+  };
+  const DEFAULT_THEME = {
+    primary: '#00a8e8', rgb: '0,168,232', secondary: '#ffd100', from: '#00a8e8', to: '#0069b4',
+    bgLight: '#f4f7fb', cardLight: '#ffffff', textMainLight: '#2d3748', textMutedLight: '#718096',
+    bgDark: '#1a202c', cardDark: '#2d3748', textMainDark: '#e2e8f0', textMutedDark: '#a0aec0'
+  };
+
+  // ── Circular Reveal Engine ────────────────────────────────────
+  // Tracks the last click position for the reveal origin
+  let _revealX = window.innerWidth / 2;
+  let _revealY = window.innerHeight / 2;
+
+  document.addEventListener('click', function(e) {
+    _revealX = e.clientX;
+    _revealY = e.clientY;
+  }, true); // capture phase so we always have the latest coords
+
+  function circularReveal(color, rgb, onMidpoint) {
+    // Calculate the max radius needed to cover the full viewport from the click
+    const dx = Math.max(_revealX, window.innerWidth  - _revealX);
+    const dy = Math.max(_revealY, window.innerHeight - _revealY);
+    const maxR = Math.ceil(Math.sqrt(dx * dx + dy * dy));
+
+    const overlay = document.getElementById('circular-reveal');
+    if (!overlay) { onMidpoint(); return; }
+
+    // Set the overlay color and starting clip-path
+    overlay.style.background  = color;
+    overlay.style.clipPath    = `circle(0px at ${_revealX}px ${_revealY}px)`;
+    overlay.style.transition  = 'none';
+    overlay.style.opacity     = '1';
+
+    // Force reflow
+    void overlay.offsetWidth;
+
+    // Expand the circle
+    overlay.style.transition  = `clip-path 0.52s cubic-bezier(0.22,1,0.36,1)`;
+    overlay.style.clipPath    = `circle(${maxR}px at ${_revealX}px ${_revealY}px)`;
+
+    // At the midpoint of expansion, swap the actual CSS variables (invisible under overlay)
+    const midDelay = 260;
+    setTimeout(() => {
+      onMidpoint();
+    }, midDelay);
+
+    // Shoot a ripple ring from the click point
+    const ripple = document.createElement('div');
+    ripple.className = 'lugar-ripple';
+    ripple.style.left  = _revealX + 'px';
+    ripple.style.top   = _revealY + 'px';
+    ripple.style.color = color;
+    ripple.style.borderColor = color;
+    document.body.appendChild(ripple);
+    setTimeout(() => ripple.remove(), 600);
+
+    // Fade the overlay out after expand completes
+    setTimeout(() => {
+      overlay.style.transition = 'opacity 0.32s ease';
+      overlay.style.opacity    = '0';
+      setTimeout(() => {
+        overlay.style.clipPath = 'none';
+        overlay.style.opacity  = '1'; // reset for next use (invisible because clip is none)
+        overlay.style.clipPath = 'circle(0px at 50% 50%)';
+      }, 340);
+    }, 530);
+  }
+
+  function applyLugarTheme(lugarName, skipAnimation) {
+    const theme = LUGAR_THEMES[lugarName] || DEFAULT_THEME;
+
+    function applyVars() {
+      const root = document.documentElement;
+      // Core accent
+      root.style.setProperty('--tw-primary',           theme.primary);
+      root.style.setProperty('--tw-primary-rgb',       theme.rgb);
+      root.style.setProperty('--tw-secondary',         theme.secondary);
+      // Theme specific variables replacing tailwind base
+      root.style.setProperty('--tw-bg-light',          theme.bgLight);
+      root.style.setProperty('--tw-bg-dark',           theme.bgDark);
+      root.style.setProperty('--tw-card-light',        theme.cardLight);
+      root.style.setProperty('--tw-card-dark',         theme.cardDark);
+      root.style.setProperty('--tw-text-main-light',   theme.textMainLight);
+      root.style.setProperty('--tw-text-main-dark',    theme.textMainDark);
+      root.style.setProperty('--tw-text-muted-light',  theme.textMutedLight);
+      root.style.setProperty('--tw-text-muted-dark',   theme.textMutedDark);
+
+      // Effects
+      root.style.setProperty('--theme-light',          `rgba(${theme.rgb},0.09)`);
+      root.style.setProperty('--theme-glow',           `rgba(${theme.rgb},0.28)`);
+      root.style.setProperty('--theme-shadow',         `rgba(${theme.rgb},0.2)`);
+      root.style.setProperty('--theme-border',         `rgba(${theme.rgb},0.25)`);
+      root.style.setProperty('--theme-gradient-from',  theme.from);
+      root.style.setProperty('--theme-gradient-to',    theme.to);
+
+      const body = document.body;
+      if (lugarName) {
+        body.classList.add('lugar-selected');
+      } else {
+        body.classList.remove('lugar-selected');
+      }
+
+      // Title gradient
+      const title = document.querySelector('.themed-title');
+      if (title) {
+        if (lugarName) title.classList.remove('no-theme');
+        else           title.classList.add('no-theme');
+      }
+
+      // Mobile button label + style
+      const btnLabel = document.getElementById('btn-lugares-label');
+      const btn      = document.getElementById('btn-lugares');
+      if (btnLabel) btnLabel.textContent = lugarName || 'Todos los Lugares';
+      if (btn) {
+        if (lugarName) {
+          btn.style.borderColor = theme.primary;
+          btn.style.background  = `rgba(${theme.rgb},0.07)`;
+          btn.style.color       = theme.primary;
+        } else {
+          btn.style.borderColor = '';
+          btn.style.background  = '';
+          btn.style.color       = '';
+        }
+      }
+    }
+
+    if (skipAnimation) {
+      applyVars();
+    } else {
+      circularReveal(theme.primary, theme.rgb, applyVars);
+    }
+  }
+
+  const allPopoverIds = ['pop-lugares', 'pop-talleres', 'pop-edades'];
+  const allBtnIds    = ['btn-lugares', 'btn-talleres', 'btn-edades'];
+  const allIconIds   = ['icon-lugares','icon-talleres','icon-edades'];
 
   function toggleDropdown(popId, btnId) {
     const isOpen = document.getElementById(popId).classList.contains('open');
@@ -539,16 +893,26 @@
     });
   }
 
-  // Attach listeners to static popovers (barrios, edades)
-  document.querySelectorAll('#pop-barrios, #pop-edades').forEach(attachChipListeners);
+  // Attach listeners to static popovers (lugares, edades)
+  document.querySelectorAll('#pop-lugares, #pop-edades').forEach(attachChipListeners);
+
+  // Also handle theme change on lugar popover
+  document.querySelectorAll('#pop-lugares .filter-chip').forEach(chip => {
+    chip.addEventListener('click', function() {
+      applyLugarTheme(this.dataset.value || '');
+    });
+  });
 
   // ── Desktop sidebar chip listeners ────────────────────────────
   function attachSidebarChipListeners(container) {
     container.querySelectorAll('.sidebar-chip').forEach(chip => {
       chip.addEventListener('click', function() {
-        const filterType = this.dataset.filter2;
         container.querySelectorAll('.sidebar-chip').forEach(c => c.classList.remove('active'));
         this.classList.add('active');
+        // If this is a Lugar chip, apply theme
+        if (this.dataset.filter2 === 'barrio') {
+          applyLugarTheme(this.dataset.value2 || '');
+        }
         applyFilters();
       });
     });
@@ -606,7 +970,7 @@
 
 <div class="desktop-cards-grid" id="workshopsContainer">
   <!-- Loading skeleton initially -->
-  <div class="animate-pulse flex flex-col gap-4 p-4 border border-gray-100 dark:border-gray-800 rounded-2xl bg-white dark:bg-card-dark">
+  <div class="animate-pulse flex flex-col gap-4 p-4 border border-gray-100 dark:border-gray-800 rounded-2xl bg-card-light dark:bg-card-dark">
     <div class="h-32 bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
     <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
     <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
@@ -638,29 +1002,28 @@
       : '';
     return `
       <a href="descripcion?id=${doc.id}" class="block no-underline">
-      <article class="bg-white dark:bg-card-dark rounded-2xl shadow-${isFirst ? 'md' : 'sm border border-gray-100 dark:border-gray-800'} overflow-hidden flex flex-col transition-transform active:scale-[0.98] cursor-pointer">
-        <div class="${bannerClass} relative flex items-center justify-center overflow-hidden" style="${bannerStyle}">
+      <article class="bg-card-light dark:bg-card-dark rounded-2xl shadow-${isFirst ? 'md' : 'sm'} overflow-hidden flex flex-col transition-transform active:scale-[0.98] cursor-pointer border border-transparent">
+        <div class="${bannerClass} relative overflow-hidden" style="${bannerStyle}">
           ${badgeHTML}
-          <span class="material-icons text-white/${data.imageUrl?'90':'50'} text-5xl z-10 ${data.imageUrl?'drop-shadow-lg':''}">${data.icon || 'music_note'}</span>
           ${overlayHTML}
         </div>
         <div class="p-4 flex flex-col gap-3 relative">
-          <span class="absolute -top-4 right-4 bg-white dark:bg-card-dark text-primary font-bold text-xs px-3 py-1 rounded-full shadow-md border border-gray-100 dark:border-gray-700 uppercase tracking-wider">${data.category}</span>
+          <span class="absolute -top-4 right-4 bg-background-light dark:bg-background-dark text-primary font-bold text-xs px-3 py-1 rounded-full shadow-md uppercase tracking-wider border border-gray-100 dark:border-gray-800">${data.category}</span>
           <div>
-            <h3 class="text-lg font-bold text-gray-900 dark:text-white leading-tight mb-1">${data.title}</h3>
+            <h3 class="text-lg font-bold text-text-main-light dark:text-text-main-dark leading-tight mb-1">${data.title}</h3>
             ${descHTML}
           </div>
           <div class="space-y-1.5 ${isFirst?'mt-1':'}'}">
-            <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-              <span class="material-icons text-[16px] text-gray-400">location_on</span>
+            <div class="flex items-center gap-2 text-sm text-text-muted-light dark:text-text-muted-dark">
+              <span class="material-icons text-[16px] text-inherit">location_on</span>
               <span>${data.location}</span>
             </div>
-            <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-              <span class="material-icons text-[16px] text-gray-400">calendar_today</span>
+            <div class="flex items-center gap-2 text-sm text-text-muted-light dark:text-text-muted-dark">
+              <span class="material-icons text-[16px] text-inherit">calendar_today</span>
               <span>${Array.isArray(data.dias) && data.dias.length ? data.dias.join(', ') : (data.schedule || "—")}</span>
             </div>
-            <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-              <span class="material-icons text-[16px] text-gray-400">schedule</span>
+            <div class="flex items-center gap-2 text-sm text-text-muted-light dark:text-text-muted-dark">
+              <span class="material-icons text-[16px] text-inherit">schedule</span>
               <span>${data.horaInicio ? (data.horaFin ? data.horaInicio + " – " + data.horaFin + " hs" : data.horaInicio + " hs") : (data.schedule || "—")}</span>
             </div>
           </div>
@@ -701,7 +1064,7 @@
     const desktopQuery = (document.getElementById('search-input-desktop')?.value || '').toLowerCase().trim();
     const query = isDesktop ? desktopQuery : mobileQuery;
 
-    const mobileBarrio   = (document.querySelector('#pop-barrios .filter-chip.active')?.dataset.value   || '').toLowerCase();
+    const mobileBarrio   = (document.querySelector('#pop-lugares .filter-chip.active')?.dataset.value   || '').toLowerCase();
     const mobileCategory = (document.querySelector('#pop-talleres .filter-chip.active')?.dataset.value  || '').toLowerCase();
     const mobileEdad     = (document.querySelector('#pop-edades .filter-chip.active')?.dataset.value    || '').toLowerCase();
 
@@ -720,7 +1083,7 @@
         ].join(' ').toLowerCase();
         if (!haystack.includes(query)) return false;
       }
-      if (activeBarrio   && !(data.location || '').toLowerCase().includes(activeBarrio)) return false;
+      if (activeBarrio   && (data.barrio    || '').toLowerCase() !== activeBarrio)        return false;
       if (activeCategory && (data.category  || '').toLowerCase() !== activeCategory)     return false;
       if (activeEdad     && !(data.ageText  || '').toLowerCase().includes(activeEdad))   return false;
       return true;
@@ -765,13 +1128,16 @@
     });
 
     // Reset mobile dropdown chips → activate first chip in each popover
-    ['pop-barrios', 'pop-talleres', 'pop-edades'].forEach(id => {
+    ['pop-lugares', 'pop-talleres', 'pop-edades'].forEach(id => {
       const pop = document.getElementById(id);
       if (!pop) return;
       pop.querySelectorAll('.filter-chip').forEach((c, i) => {
         c.classList.toggle('active', i === 0);
       });
     });
+
+    // Reset theme to default
+    applyLugarTheme('');
 
     // Close any open mobile dropdown
     allPopoverIds.forEach(id => document.getElementById(id)?.classList.remove('open'));
