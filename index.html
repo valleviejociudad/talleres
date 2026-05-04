@@ -637,58 +637,17 @@
 </button>
 </div>
 
-<!-- Filtros con dropdowns (mobile only) -->
-<div class="mobile-filters-row" style="position:relative; z-index:50;">
-<div class="flex flex-wrap gap-2">
-
-  <!-- Dropdown: Lugares -->
-  <div class="filter-dropdown">
-    <button id="btn-lugares" onclick="toggleDropdown('pop-lugares','btn-lugares')" class="flex items-center gap-1 px-4 py-2 rounded-full bg-card-light dark:bg-card-dark border border-gray-200 dark:border-gray-700 text-sm font-medium whitespace-nowrap shadow-sm hover:border-primary transition-colors" style="transition:all 0.3s ease">
-      <span class="material-icons text-[16px]" id="icon-lugar-pin" style="color:var(--theme-primary)">location_on</span>
-      <span id="btn-lugares-label">Todos los Lugares</span>
-      <span class="material-icons text-[18px] text-gray-400" id="icon-lugares">arrow_drop_down</span>
-    </button>
-    <div class="filter-popover" id="pop-lugares">
-      <button class="filter-chip active" data-filter="barrio" data-value="" data-lugar-color="">Todos los Lugares</button>
-      <button class="filter-chip" data-filter="barrio" data-value="Deporte" data-lugar-color="#3f70c9">🏋️ Deporte</button>
-      <button class="filter-chip" data-filter="barrio" data-value="Portal" data-lugar-color="#00820e">🏛️ Portal</button>
-      <button class="filter-chip" data-filter="barrio" data-value="Juventud" data-lugar-color="#f63c8f">🌟 Juventud</button>
-      <button class="filter-chip" data-filter="barrio" data-value="Salon Prevedello" data-lugar-color="#4c1e6f">🎭 Salon Prevedello</button>
-      <button class="filter-chip" data-filter="barrio" data-value="SUM 140" data-lugar-color="#f48104">🏠 SUM 140</button>
-      <button class="filter-chip" data-filter="barrio" data-value="SUM Vias Oeste" data-lugar-color="#4dab94">🌿 SUM Vias Oeste</button>
-    </div>
+<!-- Filtros mobile (solo lugares, mostrados directamente) -->
+<div class="mobile-filters-row pb-4 lg:hidden" style="position:relative; z-index:50;">
+  <div class="flex flex-wrap gap-2 px-1" id="pop-lugares">
+    <button class="filter-chip active" data-filter="barrio" data-value="" data-lugar-color="">Todos los Lugares</button>
+    <button class="filter-chip" data-filter="barrio" data-value="Deporte" data-lugar-color="#3f70c9">🏋️ Deporte</button>
+    <button class="filter-chip" data-filter="barrio" data-value="Portal" data-lugar-color="#00820e">🏛️ Portal</button>
+    <button class="filter-chip" data-filter="barrio" data-value="Juventud" data-lugar-color="#f63c8f">🌟 Juventud</button>
+    <button class="filter-chip" data-filter="barrio" data-value="Salon Prevedello" data-lugar-color="#4c1e6f">🎭 Salon Prevedello</button>
+    <button class="filter-chip" data-filter="barrio" data-value="SUM 140" data-lugar-color="#f48104">🏠 SUM 140</button>
+    <button class="filter-chip" data-filter="barrio" data-value="SUM Vias Oeste" data-lugar-color="#4dab94">🌿 SUM Vias Oeste</button>
   </div>
-
-  <!-- Dropdown: Talleres -->
-  <div class="filter-dropdown">
-    <button id="btn-talleres" onclick="toggleDropdown('pop-talleres','btn-talleres')" class="flex items-center gap-1 px-4 py-2 rounded-full bg-card-light dark:bg-card-dark border border-gray-200 dark:border-gray-700 text-sm font-medium whitespace-nowrap shadow-sm hover:border-primary transition-colors">
-      <span class="material-icons text-[16px] text-primary">school</span>
-      Todos los Talleres
-      <span class="material-icons text-[18px] text-gray-400" id="icon-talleres">arrow_drop_down</span>
-    </button>
-    <div class="filter-popover" id="pop-talleres">
-      <button class="filter-chip active" data-filter="category" data-value="">Todos</button>
-      <span id="category-chips-loading" class="text-xs text-gray-400 px-1">Cargando...</span>
-    </div>
-  </div>
-
-  <!-- Dropdown: Edades -->
-  <div class="filter-dropdown">
-    <button id="btn-edades" onclick="toggleDropdown('pop-edades','btn-edades')" class="flex items-center gap-1 px-4 py-2 rounded-full bg-card-light dark:bg-card-dark border border-gray-200 dark:border-gray-700 text-sm font-medium whitespace-nowrap shadow-sm hover:border-primary transition-colors">
-      <span class="material-icons text-[16px] text-primary">people</span>
-      Todas las Edades
-      <span class="material-icons text-[18px] text-gray-400" id="icon-edades">arrow_drop_down</span>
-    </button>
-    <div class="filter-popover" id="pop-edades">
-      <button class="filter-chip active" data-filter="edad" data-value="">Todas las Edades</button>
-      <button class="filter-chip" data-filter="edad" data-value="Niños">Niños</button>
-      <button class="filter-chip" data-filter="edad" data-value="Adolescentes">Adolescentes</button>
-      <button class="filter-chip" data-filter="edad" data-value="Adultos">Adultos</button>
-      <button class="filter-chip" data-filter="edad" data-value="Mayores">Mayores</button>
-    </div>
-  </div>
-
-</div>
 </div>
 <!-- END mobile filters -->
 
@@ -931,20 +890,22 @@
           .map(d => ({ id: d.id, ...d.data() }))
           .sort((a, b) => (a.order || 0) - (b.order || 0));
 
-        // ── Populate mobile dropdown ──
+        // ── Populate mobile dropdown (if it exists) ──
         const pop = document.getElementById('pop-talleres');
-        pop.querySelectorAll('.filter-chip:not([data-value=""])').forEach(c => c.remove());
-        const loading = document.getElementById('category-chips-loading');
-        if (loading) loading.remove();
-        cats.forEach(cat => {
-          const btn = document.createElement('button');
-          btn.className = 'filter-chip';
-          btn.dataset.filter = 'category';
-          btn.dataset.value  = cat.name;
-          btn.textContent    = `${cat.emoji} ${cat.name}`;
-          pop.appendChild(btn);
-        });
-        attachChipListeners(pop);
+        if (pop) {
+          pop.querySelectorAll('.filter-chip:not([data-value=""])').forEach(c => c.remove());
+          const loading = document.getElementById('category-chips-loading');
+          if (loading) loading.remove();
+          cats.forEach(cat => {
+            const btn = document.createElement('button');
+            btn.className = 'filter-chip';
+            btn.dataset.filter = 'category';
+            btn.dataset.value  = cat.name;
+            btn.textContent    = `${cat.emoji} ${cat.name}`;
+            pop.appendChild(btn);
+          });
+          attachChipListeners(pop);
+        }
 
         // ── Populate desktop sidebar ──
         const sidebarCats = document.getElementById('sidebar-categorias');
@@ -989,9 +950,10 @@
   // ── Build card HTML ───────────────────────────────────────────
   function buildCardHTML(doc, isFirst) {
     const data = doc.data;
+    const themeColor = LUGAR_THEMES[data.barrio] ? LUGAR_THEMES[data.barrio].primary : (data.bannerColor || '#3b82f6');
     const bannerStyle = data.imageUrl
       ? `background-image: url('${data.imageUrl}'); background-size: cover; background-position: center;`
-      : `background-color: ${data.bannerColor || '#3b82f6'};`;
+      : `background-color: ${themeColor};`;
     const bannerClass = isFirst ? 'h-32' : 'h-24';
     const badgeHTML = isFirst
       ? `<span class="absolute top-3 left-3 bg-secondary text-gray-900 text-xs font-bold px-3 py-1 rounded-full shadow-sm z-10 uppercase tracking-wider">Último Lanzamiento</span>`
@@ -1010,7 +972,7 @@
           ${overlayHTML}
         </div>
         <div class="p-4 flex flex-col gap-3 relative">
-          <span class="absolute -top-4 right-4 bg-background-light dark:bg-background-dark text-primary font-bold text-xs px-3 py-1 rounded-full shadow-md uppercase tracking-wider border border-gray-100 dark:border-gray-800">${data.category}</span>
+          <span class="absolute -top-4 right-4 bg-background-light dark:bg-background-dark font-bold text-xs px-3 py-1 rounded-full shadow-md uppercase tracking-wider border border-gray-100 dark:border-gray-800" style="color: ${themeColor}">${data.barrio}</span>
           <div>
             <h3 class="text-lg font-bold text-text-main-light dark:text-text-main-dark leading-tight mb-1">${data.title}</h3>
             ${descHTML}
