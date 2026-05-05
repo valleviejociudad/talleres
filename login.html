@@ -11,7 +11,7 @@
 <!-- Firebase SDKs -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
+  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCxBeZMj2YQc9GL2BAC6-kqhJi6KeLCbng",
@@ -28,7 +28,18 @@
   // Si ya está autenticado, redirigir directo al panel
   onAuthStateChanged(auth, (user) => {
     if (user) {
-      window.location.replace('admin');
+      // Verificar expiración de sesión (24 horas)
+      const lastSignIn = new Date(user.metadata.lastSignInTime).getTime();
+      const now = new Date().getTime();
+      const hoursSinceLogin = (now - lastSignIn) / (1000 * 60 * 60);
+      
+      if (hoursSinceLogin > 24) {
+        signOut(auth).then(() => {
+          document.getElementById('loginCard').style.opacity = '1';
+        });
+      } else {
+        window.location.replace('admin');
+      }
     } else {
       // Mostrar el formulario (estaba oculto hasta confirmar estado)
       document.getElementById('loginCard').style.opacity = '1';

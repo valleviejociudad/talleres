@@ -32,6 +32,18 @@
     if (!user) {
       window.location.replace('login');
     } else {
+      // Verificar expiración de sesión (24 horas)
+      const lastSignIn = new Date(user.metadata.lastSignInTime).getTime();
+      const now = new Date().getTime();
+      const hoursSinceLogin = (now - lastSignIn) / (1000 * 60 * 60);
+      
+      if (hoursSinceLogin > 24) {
+        signOut(auth).then(() => {
+          window.location.replace('login');
+        });
+        return;
+      }
+
       // Hide auth loading screen and show the panel
       if (window._showAdminPanel) {
         window._showAdminPanel();
@@ -260,7 +272,14 @@
 <main class="max-w-4xl mx-auto px-4 py-6 space-y-6">
 
   <!-- ══ STATS ROW ══════════════════════════════════════════════════════════════ -->
-  <div class="grid grid-cols-3 gap-3 anim-1" id="statsRow">
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 anim-1" id="statsRow">
+    <div class="stat-card bg-white dark:bg-card-dark rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-4 flex flex-col items-center gap-1">
+      <div class="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-600 mb-1">
+        <span class="material-icons">visibility</span>
+      </div>
+      <span class="text-2xl font-bold text-gray-900 dark:text-white" id="statVisitors">—</span>
+      <span class="text-[0.65rem] font-semibold uppercase tracking-wider text-text-muted-light dark:text-text-muted-dark">Visitantes</span>
+    </div>
     <div class="stat-card bg-white dark:bg-card-dark rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-4 flex flex-col items-center gap-1">
       <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-1">
         <span class="material-icons">school</span>
@@ -1072,7 +1091,15 @@
       initBarrios();
       initEdades();
 
-      // ── Real-time listener ──────────────────────────────────────
+      // ── Real-time listeners ──────────────────────────────────────
+      window.onSnapshot(window.doc(window.db, "stats", "visitors"), (docSnap) => {
+        if (docSnap.exists()) {
+          document.getElementById('statVisitors').textContent = docSnap.data().count || 0;
+        } else {
+          document.getElementById('statVisitors').textContent = 0;
+        }
+      });
+
       window.onSnapshot(window.collection(window.db, "workshops"), (snapshot) => {
         tableBody.innerHTML = '';
 

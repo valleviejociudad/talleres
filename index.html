@@ -10,7 +10,7 @@
 <!-- Firebase SDKs -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-  import { getFirestore, collection, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+  import { getFirestore, collection, getDocs, onSnapshot, doc, setDoc, increment } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCxBeZMj2YQc9GL2BAC6-kqhJi6KeLCbng",
@@ -22,10 +22,18 @@
   };
 
   const app = initializeApp(firebaseConfig);
-  window.db = getFirestore(app);
+  const db = getFirestore(app);
+  window.db = db;
   window.collection = collection;
   window.getDocs = getDocs;
   window.onSnapshot = onSnapshot;
+
+  // Registrar visita
+  if (!localStorage.getItem('hasVisited_talleres')) {
+    localStorage.setItem('hasVisited_talleres', 'true');
+    const statsRef = doc(db, 'stats', 'visitors');
+    setDoc(statsRef, { count: increment(1) }, { merge: true }).catch(console.error);
+  }
 </script>
 
 <script>
